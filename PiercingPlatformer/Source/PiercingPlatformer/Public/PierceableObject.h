@@ -5,12 +5,13 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "../Public/Pierceable.h"
+#include "../Public/Damageable.h"
 #include "PierceableObject.generated.h"
 
 class USphereComponent;
 
 UCLASS()
-class PIERCINGPLATFORMER_API APierceableObject : public AActor, public IPierceable
+class PIERCINGPLATFORMER_API APierceableObject : public AActor, public IPierceable, public IDamageable
 {
 	GENERATED_BODY()
 	
@@ -32,4 +33,6 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+
+	void TakeDamage_Implementation(int Damage);
 };

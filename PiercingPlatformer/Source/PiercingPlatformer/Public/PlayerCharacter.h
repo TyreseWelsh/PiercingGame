@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "PaperZDCharacter.h"
 #include "../Public/CanAttack.h"
+#include "../Public/Damageable.h"
 #include "PlayerCharacter.generated.h"
 
 class USphereComponent;
@@ -30,7 +31,7 @@ class ABasicAttack;
 
 
 UCLASS()
-class PIERCINGPLATFORMER_API APlayerCharacter : public APaperZDCharacter, public ICanAttack
+class PIERCINGPLATFORMER_API APlayerCharacter : public APaperZDCharacter, public IDamageable, public ICanAttack
 {
 	GENERATED_BODY()
 
@@ -82,9 +83,14 @@ public:
 	virtual void Jump() override;
 	virtual void StopJumping() override;
 
+
+	void TakeDamage_Implementation(int Damage);
+
 	// ICanAttack functions
 	void StartAttack_Implementation();
 	void EndAttack_Implementation();
+	void EnableAttackCollider_Implementation();
+	void DisableAttackCollider_Implementation();
 
 private:
 	void Run(const FInputActionValue& Value);
@@ -117,6 +123,8 @@ private:
 	bool bIsRunning = false;
 	bool bIsInAir = false;
 
+	int Health = 100;
+
 	// Piercing
 	AActor* ClosestPierceTarget;
 	float PierceForce = 3000.f;
@@ -124,7 +132,7 @@ private:
 	FVector PierceStartPos;
 	FVector PierceEndPos;
 	float PierceTravelPercent;
-	float PierceDistance = 250.f;
+	float PierceDistance = 350.f;
 	float PierceDistanceMultiplier = 1.f;
 	FTimerHandle PierceAimTimer;
 	FTimerDelegate PierceAimDelegate;
@@ -139,8 +147,11 @@ private:
 	// Attacking
 	ABasicAttack* BasicAttack = nullptr;
 
-	UPROPERTY(EditDefaultsOnly, Category = Attacking, meta = (AllowPrivateAccess))
+	UPROPERTY(EditDefaultsOnly, Category = Attacking, meta = (AllowPrivateAccess = "true"))
 	UPaperZDAnimSequence* BasicAttackAnim;
 
+	UPROPERTY(EditDefaultsOnly, Category = Attacking, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<ABasicAttack> AttackToSpawn;
 
+	
 };

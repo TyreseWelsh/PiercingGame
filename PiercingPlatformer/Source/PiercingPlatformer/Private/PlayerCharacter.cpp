@@ -9,6 +9,7 @@
 #include "GameFramework/WorldSettings.h"
 #include "PaperZDAnimInstance.h"
 #include "../Public/BasicAttack.h"
+#include "PaperFlipbookComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
 #include "EnhancedInputComponent.h"
@@ -28,20 +29,21 @@ APlayerCharacter::APlayerCharacter()
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationYaw = false;
 	
+	/// "ECC_GameTraceChannel1" is the collision object type "Player" in editor
 	// Setup Collision Capsule
 	GetCapsuleComponent()->InitCapsuleSize(36.f, 48.f);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	GetCapsuleComponent()->SetCollisionObjectType(ECollisionChannel::ECC_Pawn);
+	GetCapsuleComponent()->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel1);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Overlap);
 
 	// Initialisation and setup of PierceRadius Sphere Collider
 	PierceRadius = CreateDefaultSubobject<USphereComponent>(TEXT("PierceRadius"));
 	PierceRadius->InitSphereRadius(100.f);
 	PierceRadius->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	PierceRadius->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+	PierceRadius->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel1);
 	PierceRadius->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
 	PierceRadius->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Ignore);
-	PierceRadius->SetCollisionResponseToChannel(ECollisionChannel::ECC_Vehicle, ECollisionResponse::ECR_Ignore);
+	//PierceRadius->SetCollisionResponseToChannel(ECollisionChannel::ECC_Vehicle, ECollisionResponse::ECR_Ignore);
 	PierceRadius->bHiddenInGame = false;
 	PierceRadius->SetupAttachment(RootComponent);
 
@@ -50,7 +52,7 @@ APlayerCharacter::APlayerCharacter()
 	LeftWallCollider->SetRelativeLocation(FVector(-35.f, 0.f, 0.f));
 	LeftWallCollider->InitBoxExtent(FVector(4.f, 32.f, 46.f));
 	LeftWallCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	LeftWallCollider->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+	LeftWallCollider->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel1);
 	LeftWallCollider->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	LeftWallCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Overlap);
 	LeftWallCollider->SetupAttachment(RootComponent);
@@ -60,7 +62,7 @@ APlayerCharacter::APlayerCharacter()
 	RightWallCollider->SetRelativeLocation(FVector(35.f, 0.f, 0.f));
 	RightWallCollider->InitBoxExtent(FVector(4.f, 32.f, 46.f));
 	RightWallCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	RightWallCollider->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+	RightWallCollider->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel1);
 	RightWallCollider->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	RightWallCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Overlap);
 	RightWallCollider->SetupAttachment(RootComponent);
@@ -70,7 +72,7 @@ APlayerCharacter::APlayerCharacter()
 	GetCharacterMovement()->MaxAcceleration = 8192.f;
 	GetCharacterMovement()->GroundFriction = 40.f;
 	GetCharacterMovement()->MaxWalkSpeed = 800.f;
-	GetCharacterMovement()->JumpZVelocity = 1200.f;
+	GetCharacterMovement()->JumpZVelocity = 2400.f;
 	GetCharacterMovement()->AirControl = 1.f;
 	GetCharacterMovement()->AirControlBoostMultiplier = 4.f;
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 0.f, 999999999.f);
@@ -85,6 +87,8 @@ void APlayerCharacter::BeginPlay()
 
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{
+		GEngine->AddOnScreenDebugMessage(int32(-1), 20.f, FColor::Green, "COLLISION");
+
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 		{
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
@@ -150,6 +154,16 @@ void APlayerCharacter::StopJumping()
 	ResetJumpState();
 }
 
+void APlayerCharacter::TakeDamage_Implementation(int Damage)
+{
+	Health -= Damage;
+
+	if (Health <= 0)
+	{
+		UE_LOG(LogTemp, Error, TEXT("YOU DIED..."));
+	}
+}
+
 
 void APlayerCharacter::StartAttack_Implementation()
 {
@@ -178,13 +192,26 @@ void APlayerCharacter::StartAttack_Implementation()
 		NewBasicAttackTransform.SetScale3D(FVector(1.f, 1.f, 1.f));
 
 
-		BasicAttack = GetWorld()->SpawnActorDeferred<ABasicAttack>(ABasicAttack::StaticClass(), NewBasicAttackTransform);
+		BasicAttack = GetWorld()->SpawnActor<ABasicAttack>(AttackToSpawn, NewBasicAttackTransform);
+		BasicAttack->SetOwningPlayer(this);
+		BasicAttack->GetSprite()->PlayFromStart();
+		BasicAttack->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
 	}
 }
 
 	void APlayerCharacter::EndAttack_Implementation()
 	{
-		BasicAttack->Destroy();
+		//BasicAttack->Destroy();
+	}
+
+	void APlayerCharacter::EnableAttackCollider_Implementation()
+	{
+		BasicAttack->GetCollider()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	}
+
+	void APlayerCharacter::DisableAttackCollider_Implementation()
+	{
+		BasicAttack->GetCollider()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 
 	void APlayerCharacter::Run(const FInputActionValue& Value)
@@ -260,7 +287,7 @@ void APlayerCharacter::AimPierce(APlayerController* _PlayerController)
 	PierceDirection = VectorFromTargetToMouse * -1;
 
 	PierceDistanceMultiplier -= GetWorld()->DeltaRealTimeSeconds * 8;
-	if (PierceDistanceMultiplier <= 0.3f)															// Distance multiplier was 0.4 but has been divided by 10 to account for delta times small values
+	if (PierceDistanceMultiplier <= 0.55f)															// Distance multiplier was 0.4 but has been divided by 10 to account for delta times small values
 	{
 		// NOTE: Ideally exit the pierce state which will cancel the pierce all together easily
 		ClosestPierceTarget = nullptr;
@@ -271,7 +298,7 @@ void APlayerCharacter::AimPierce(APlayerController* _PlayerController)
 	// Pierce distance multiplied by PierceDistanceMultiplier so the distance covered is continuously reduced while the player holds the button, incentivising faster gameplay
 	FVector PiercePower = (PierceDirection * PierceDistance) * PierceDistanceMultiplier;
 	PierceEndPos = ClosestPierceTarget->GetActorLocation() + PiercePower;
-	PierceStartPos = ClosestPierceTarget->GetActorLocation() + (-1 * PiercePower);
+	PierceStartPos = ClosestPierceTarget->GetActorLocation() + (-1 * PiercePower / 2);
 
 
 	PierceStartDelay += GetWorld()->DeltaRealTimeSeconds;
@@ -284,7 +311,7 @@ void APlayerCharacter::AimPierce(APlayerController* _PlayerController)
 	GEngine->AddOnScreenDebugMessage(int32(-1), 20.f, FColor::Green, "Aiming");
 
 	DrawDebugLine(GetWorld(), ClosestPierceTarget->GetActorLocation(), PierceEndPos, FColor::Red);
-	DrawDebugLine(GetWorld(), ClosestPierceTarget->GetActorLocation(), PierceStartPos, FColor::Cyan);
+	DrawDebugLine(GetWorld(), ClosestPierceTarget->GetActorLocation(), PierceStartPos, FColor::Yellow);
 }
 
 void APlayerCharacter::EndPierce()

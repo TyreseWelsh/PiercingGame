@@ -27,4 +27,10 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void EndAttack();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void EnableAttackCollider();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void DisableAttackCollider();
 };

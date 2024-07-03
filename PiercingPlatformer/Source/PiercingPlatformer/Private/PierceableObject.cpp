@@ -38,3 +38,8 @@ void APierceableObject::Tick(float DeltaTime)
 
 }
 
+void APierceableObject::TakeDamage_Implementation(int Damage)
+{
+
+}
+
