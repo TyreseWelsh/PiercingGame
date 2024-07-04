@@ -34,7 +34,7 @@ UCLASS()
 class PIERCINGPLATFORMER_API APlayerCharacter : public APaperZDCharacter, public IDamageable, public ICanAttack
 {
 	GENERATED_BODY()
-
+	
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
 	USphereComponent* PierceRadius;
 
@@ -144,6 +144,16 @@ private:
 	float MAX_PIERCE_START_DELAY = 0.025f;
 	bool bIsPierceButtonReleased = true;
 
+	AActor* PierceAimHead = nullptr;
+	AActor* PierceAimTail = nullptr;
+	
+	UPROPERTY(EditDefaultsOnly, Category = Piercing, meta = (AllowPrivateAccess))
+	TSubclassOf<AActor> PierceHeadBP;
+
+	UPROPERTY(EditDefaultsOnly, Category = Piercing, meta = (AllowPrivateAccess))
+	TSubclassOf<AActor> PierceTailBP;
+	
+	
 	// Attacking
 	ABasicAttack* BasicAttack = nullptr;
 

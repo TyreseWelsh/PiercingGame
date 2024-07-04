@@ -46,7 +46,7 @@ APlayerCharacter::APlayerCharacter()
 	//PierceRadius->SetCollisionResponseToChannel(ECollisionChannel::ECC_Vehicle, ECollisionResponse::ECR_Ignore);
 	PierceRadius->bHiddenInGame = false;
 	PierceRadius->SetupAttachment(RootComponent);
-
+	
 	// Left wall jump collider
 	LeftWallCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("LeftWallCollider"));
 	LeftWallCollider->SetRelativeLocation(FVector(-35.f, 0.f, 0.f));
@@ -270,7 +270,7 @@ void APlayerCharacter::StartPierce()
 
 		GetCharacterMovement()->Velocity = FVector(0.f, 0.f, 0.f);
 
-		GetWorld()->GetTimerManager().SetTimer(PierceAimTimer, PierceAimDelegate, 0.001f * GetWorld()->DeltaRealTimeSeconds, true);
+		GetWorld()->GetTimerManager().SetTimer(PierceAimTimer, PierceAimDelegate, 0.0001f * GetWorld()->DeltaRealTimeSeconds, true);
 	}
 
 }
@@ -280,14 +280,15 @@ void APlayerCharacter::AimPierce(APlayerController* _PlayerController)
 	FVector MouseLocation;
 	FVector MouseDirection;
 	_PlayerController->DeprojectMousePositionToWorld(MouseLocation, MouseDirection);
-
+	MouseLocation.Y = 0;
+	
 	FVector VectorFromTargetToMouse = FVector(ClosestPierceTarget->GetActorLocation().X, 0.0f, ClosestPierceTarget->GetActorLocation().Z) - FVector(MouseLocation.X, 0.f, MouseLocation.Z);
 	
 	VectorFromTargetToMouse.Normalize();
 	PierceDirection = VectorFromTargetToMouse * -1;
 
-	PierceDistanceMultiplier -= GetWorld()->DeltaRealTimeSeconds * 8;
-	if (PierceDistanceMultiplier <= 0.55f)															// Distance multiplier was 0.4 but has been divided by 10 to account for delta times small values
+	PierceDistanceMultiplier -= GetWorld()->DeltaRealTimeSeconds;
+	if (PierceDistanceMultiplier <= 0.35f)															// Distance multiplier was 0.4 but has been divided by 10 to account for delta times small values
 	{
 		// NOTE: Ideally exit the pierce state which will cancel the pierce all together easily
 		ClosestPierceTarget = nullptr;
@@ -301,17 +302,43 @@ void APlayerCharacter::AimPierce(APlayerController* _PlayerController)
 	PierceStartPos = ClosestPierceTarget->GetActorLocation() + (-1 * PiercePower / 2);
 
 
+	if(!IsValid(PierceAimHead))
+	{
+		FTransform PierceHeadTransform;
+		PierceHeadTransform.SetLocation(PierceEndPos);
+		PierceHeadTransform.SetRotation(UKismetMathLibrary::FindLookAtRotation(PierceEndPos, MouseLocation).Quaternion());
+		
+		PierceAimHead = GetWorld()->SpawnActor<AActor>(PierceHeadBP, PierceHeadTransform);
+	}
+	else
+	{
+		PierceAimHead->SetActorLocation(PierceEndPos);
+		PierceAimHead->SetActorRotation(UKismetMathLibrary::FindLookAtRotation(PierceEndPos, MouseLocation).Quaternion());
+	}
+
+	if(!IsValid(PierceAimTail))
+	{
+		FTransform PierceTailTransform;
+		PierceTailTransform.SetLocation(PierceStartPos);
+		PierceTailTransform.SetRotation(UKismetMathLibrary::FindLookAtRotation(PierceStartPos, MouseLocation).Quaternion());
+
+		PierceAimTail = GetWorld()->SpawnActor<AActor>(PierceTailBP, PierceTailTransform);
+	}
+	else
+	{
+		PierceAimTail->SetActorLocation(PierceStartPos);
+		PierceAimTail->SetActorRotation(UKismetMathLibrary::FindLookAtRotation(PierceStartPos, MouseLocation).Quaternion());
+	}
+	
+
 	PierceStartDelay += GetWorld()->DeltaRealTimeSeconds;
 	if (PierceStartDelay >= MAX_PIERCE_START_DELAY && bIsPierceButtonReleased)
 	{
 		EndPierce();
 	}
 
-
-	GEngine->AddOnScreenDebugMessage(int32(-1), 20.f, FColor::Green, "Aiming");
-
-	DrawDebugLine(GetWorld(), ClosestPierceTarget->GetActorLocation(), PierceEndPos, FColor::Red);
-	DrawDebugLine(GetWorld(), ClosestPierceTarget->GetActorLocation(), PierceStartPos, FColor::Yellow);
+	//DrawDebugLine(GetWorld(), ClosestPierceTarget->GetActorLocation(), PierceEndPos, FColor::Red);
+	//DrawDebugLine(GetWorld(), ClosestPierceTarget->GetActorLocation(), PierceStartPos, FColor::Yellow);
 }
 
 void APlayerCharacter::EndPierce()
@@ -336,6 +363,14 @@ void APlayerCharacter::EndPierce()
 	if (PierceAimTimer.IsValid())
 	{
 		GetWorld()->GetTimerManager().ClearTimer(PierceAimTimer);
+	}
+	if(IsValid(PierceAimHead))
+	{
+		PierceAimHead->Destroy();
+	}
+	if(IsValid(PierceAimTail))
+	{
+		PierceAimTail->Destroy();
 	}
 	PierceDistanceMultiplier = 1.f;
 }
