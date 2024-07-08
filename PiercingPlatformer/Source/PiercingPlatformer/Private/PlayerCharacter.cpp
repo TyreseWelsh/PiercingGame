@@ -5,6 +5,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/BoxComponent.h"
+#include "../Plugins/LogicStateMachine/Source/LogicStateMachine/Public/LogicStateManagerComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/WorldSettings.h"
 #include "PaperZDAnimInstance.h"
@@ -67,6 +68,8 @@ APlayerCharacter::APlayerCharacter()
 	RightWallCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Overlap);
 	RightWallCollider->SetupAttachment(RootComponent);
 
+	LogicStateManagerComponent = CreateDefaultSubobject<ULogicStateManagerComponent>(TEXT("LogicStateManager"));
+	
 	// Setup of Character Movement Component
 	GetCharacterMovement()->GravityScale = 3.f;
 	GetCharacterMovement()->MaxAcceleration = 8192.f;
@@ -101,6 +104,8 @@ void APlayerCharacter::BeginPlay()
 
 
 		PlayerController->SetShowMouseCursor(true);
+
+		LogicStateManagerComponent->InitStateManager();
 	}
 }
 
@@ -195,7 +200,6 @@ void APlayerCharacter::StartAttack_Implementation()
 		BasicAttack = GetWorld()->SpawnActor<ABasicAttack>(AttackToSpawn, NewBasicAttackTransform);
 		BasicAttack->SetOwningPlayer(this);
 		BasicAttack->GetSprite()->PlayFromStart();
-		BasicAttack->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
 	}
 }
 
@@ -270,7 +274,7 @@ void APlayerCharacter::StartPierce()
 
 		GetCharacterMovement()->Velocity = FVector(0.f, 0.f, 0.f);
 
-		GetWorld()->GetTimerManager().SetTimer(PierceAimTimer, PierceAimDelegate, 0.0001f * GetWorld()->DeltaRealTimeSeconds, true);
+		GetWorld()->GetTimerManager().SetTimer(PierceAimTimer, PierceAimDelegate, 0.0002f * GetWorld()->DeltaRealTimeSeconds, true);
 	}
 
 }
@@ -345,7 +349,7 @@ void APlayerCharacter::EndPierce()
 {
 	GetWorldSettings()->SetTimeDilation(1.f);
 
-	if (ClosestPierceTarget != nullptr)
+	if (IsValid(ClosestPierceTarget))
 	{
 		GEngine->AddOnScreenDebugMessage(int32(-1), 20.f, FColor::Green, "End pierce");
 

@@ -9,6 +9,7 @@
 #include "../Public/PlayerCharacter.h"
 
 #include "../Public/Damageable.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 ABasicAttack::ABasicAttack()
@@ -52,12 +53,9 @@ void ABasicAttack::BeginPlay()
 
 void ABasicAttack::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	GEngine->AddOnScreenDebugMessage(int32(-1), 20.f, FColor::Green, "begin overlap");
-
 	if (IDamageable* DamageableInterface = Cast<IDamageable>(OtherActor))
 	{
-
-		if (!bJumpHasReset && OwningPlayer != nullptr)
+		if (!bJumpHasReset && IsValid(OwningPlayer))
 		{
 			FTransform AttackHitEffectTransform;
 			AttackHitEffectTransform.SetLocation(FVector(OtherActor->GetActorLocation().X, OtherActor->GetActorLocation().Y + 5, OtherActor->GetActorLocation().Z));
@@ -67,12 +65,15 @@ void ABasicAttack::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 			AttackHitActor = GetWorld()->SpawnActor<AActor>(AttackHit, AttackHitEffectTransform);
 			//AttackHitActor->SetActorLocation(FVector(OtherActor->GetActorLocation().X, OtherActor->GetActorLocation().Y + 2, OtherActor->GetActorLocation().Z));
 			AttackHitActor->AttachToActor(OtherActor, FAttachmentTransformRules::KeepWorldTransform);
+
+			// NOTE: Should only launch when play is in "InAir" state once state machine is implemented
+			if(OwningPlayer->GetCharacterMovement()->Velocity.Z != 0)
+			{
+						OwningPlayer->GetCharacterMovement()->Launch(FVector(0,0,OwningPlayer->GetCharacterMovement()->JumpZVelocity / 1.5f));
+			}
 			bJumpHasReset = true;
 			OwningPlayer->JumpCurrentCount = 0;
-			GEngine->AddOnScreenDebugMessage(int32(-1), 20.f, FColor::Green, "COLLISION");
-
 		}
-		
 	}
 }
 
@@ -80,12 +81,15 @@ void ABasicAttack::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 void ABasicAttack::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	if (IsValid(OwningPlayer))
+	{
+		SetActorLocation(OwningPlayer->GetActorLocation());
+	}
 }
 
 void ABasicAttack::SetOwningPlayer(APlayerCharacter* NewOwner)
 {
 	OwningPlayer = NewOwner;
-	GEngine->AddOnScreenDebugMessage(int32(-1), 20.f, FColor::Green, "OWNING PLAYer set");
+	//GEngine->AddOnScreenDebugMessage(int32(-1), 20.f, FColor::Green, "OWNING PLAYer set");
 
 }

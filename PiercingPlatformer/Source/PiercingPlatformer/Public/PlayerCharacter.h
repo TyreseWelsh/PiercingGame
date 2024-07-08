@@ -10,6 +10,7 @@
 
 class USphereComponent;
 class UBoxComponent;
+class ULogicStateManagerComponent;
 class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
@@ -43,6 +44,9 @@ class PIERCINGPLATFORMER_API APlayerCharacter : public APaperZDCharacter, public
 
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
 	UBoxComponent* RightWallCollider;
+
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess))
+	ULogicStateManagerComponent* LogicStateManagerComponent;
 
 
 public:
@@ -126,7 +130,7 @@ private:
 	int Health = 100;
 
 	// Piercing
-	AActor* ClosestPierceTarget;
+	TObjectPtr<AActor> ClosestPierceTarget;
 	float PierceForce = 3000.f;
 	FVector PierceDirection;
 	FVector PierceStartPos;
@@ -144,8 +148,8 @@ private:
 	float MAX_PIERCE_START_DELAY = 0.025f;
 	bool bIsPierceButtonReleased = true;
 
-	AActor* PierceAimHead = nullptr;
-	AActor* PierceAimTail = nullptr;
+	TObjectPtr<AActor> PierceAimHead;
+	TObjectPtr<AActor> PierceAimTail;
 	
 	UPROPERTY(EditDefaultsOnly, Category = Piercing, meta = (AllowPrivateAccess))
 	TSubclassOf<AActor> PierceHeadBP;
@@ -155,7 +159,7 @@ private:
 	
 	
 	// Attacking
-	ABasicAttack* BasicAttack = nullptr;
+	TObjectPtr<ABasicAttack> BasicAttack;
 
 	UPROPERTY(EditDefaultsOnly, Category = Attacking, meta = (AllowPrivateAccess = "true"))
 	UPaperZDAnimSequence* BasicAttackAnim;

@@ -11,7 +11,8 @@
 			"AdditionalDependencies": [
 				"PaperZD",
 				"EnhancedInput",
-				"Engine"
+				"Engine",
+				"LogicStateMachine"
 			]
 		}
 	],
