@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(Blueprintable)
 class LOGICSTATEMACHINE_API ULogicStateBase : public UObject
 {
 	GENERATED_BODY()

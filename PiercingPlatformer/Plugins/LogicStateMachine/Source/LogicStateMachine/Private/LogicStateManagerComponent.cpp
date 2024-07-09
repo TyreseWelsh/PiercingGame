@@ -36,7 +36,6 @@ void ULogicStateManagerComponent::TickComponent(float DeltaTime, ELevelTick Tick
 	if(bDebug)
 	{
 		GEngine->AddOnScreenDebugMessage(int32(-1), 20.f, FColor::Green, this->GetOwner()->GetName() + " - Current State: " + CurrentState->StateDebugName.ToString());
-
 	}
 }
 
@@ -59,7 +58,6 @@ void ULogicStateManagerComponent::SwitchStateByKey(FString NewStateKey)
 			{
 				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red)
 			}
-
 			// Will return and continue with current state code without swapping state
 			return;
 		}

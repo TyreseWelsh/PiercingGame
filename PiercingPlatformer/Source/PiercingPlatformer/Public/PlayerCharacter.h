@@ -19,18 +19,6 @@ class UPaperZDAnimSequence;
 class ABasicAttack;
 
 
-//UENUM(BlueprintType)
-//enum EPlayerStatus
-//{
-//	Idle			UMETA(DisplayName = "Idle"),
-//	Running			UMETA(DisplayName = "Running"),
-//	Jumping			UMETA(DisplayName = "Jumping"),
-//	Piercing		UMETA(DisplayName = "Piercing"),
-//	Attacking		UMETA(DisplayName = "Attacking"),
-//	WallJumping		UMETA(DisplayName = "Wall Jumping"),
-//};
-
-
 UCLASS()
 class PIERCINGPLATFORMER_API APlayerCharacter : public APaperZDCharacter, public IDamageable, public ICanAttack
 {
@@ -81,13 +69,18 @@ protected:
 
 
 public:
+	UFUNCTION()
+	USphereComponent* GetPierceRadiusComponent() { return PierceRadius; }
+	UFUNCTION()
+	ULogicStateManagerComponent* GetLogicStateManagerComponent() { return LogicStateManagerComponent; }
+	
 	UFUNCTION(BlueprintCallable)
 	void SwapCamera(AActor* NewViewTarget, float BlendTime);
 
-	virtual void Jump() override;
-	virtual void StopJumping() override;
+	// virtual void Jump() override;
+	// virtual void StopJumping() override;
 
-
+	// Interface Implementations
 	void TakeDamage_Implementation(int Damage);
 
 	// ICanAttack functions
@@ -95,8 +88,7 @@ public:
 	void EndAttack_Implementation();
 	void EnableAttackCollider_Implementation();
 	void DisableAttackCollider_Implementation();
-
-private:
+	
 	void Run(const FInputActionValue& Value);
 
 	//void Jump(const FInputActionValue& Value);		// Will be a custom jump function overriding the base implementation
@@ -107,22 +99,19 @@ private:
 	//UFUNCTION(Category = Pierce)
 	void StartPierce();
 	
-	UFUNCTION()
-	void AimPierce(APlayerController* _PlayerController);
+	//UFUNCTION()
+	//void AimPierce(APlayerController* _PlayerController);
 
 	//UFUNCTION(Category = Pierce)
 	void EndPierce();
 
-	UFUNCTION()
-	void Pierce(APlayerController* _PlayerController);
+	//UFUNCTION()
+	//void Pierce(APlayerController* _PlayerController);
 
 	//UFUNCTION(Category = Pierce)
 	void ResetPierceValues();
 
 	void ReleasePierceButton();
-
-
-private:
 
 	bool bIsRunning = false;
 	bool bIsInAir = false;
@@ -138,10 +127,10 @@ private:
 	float PierceTravelPercent;
 	float PierceDistance = 350.f;
 	float PierceDistanceMultiplier = 1.f;
-	FTimerHandle PierceAimTimer;
-	FTimerDelegate PierceAimDelegate;
-	FTimerHandle PierceTravelTimer;
-	FTimerDelegate PierceTravelDelegate;
+	// FTimerHandle PierceAimTimer;
+	// FTimerDelegate PierceAimDelegate;
+	// FTimerHandle PierceTravelTimer;
+	// FTimerDelegate PierceTravelDelegate;
 	bool bIsPiercing = false;
 
 	float PierceStartDelay = 0.f;

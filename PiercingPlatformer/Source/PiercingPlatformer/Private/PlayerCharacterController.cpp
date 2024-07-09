@@ -11,9 +11,13 @@ void APlayerCharacterController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if(UEnhancedInputLocalPlayerSubsystem* EnhancedSubsystem = Cast<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
+	if(UEnhancedInputLocalPlayerSubsystem* Subsystem = Cast<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
 	{
-		EnhancedSubsystem->AddMappingContext(DefaultMappingContext, 0);
+		Subsystem->AddMappingContext(DefaultMappingContext, 0);
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(int32(-1), 20.f, FColor::Red, "NOT EVEN adding mapping context");
 	}
 }
 
@@ -26,13 +30,13 @@ void APlayerCharacterController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APlayerCharacterController::PressMove);
 
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &APlayerCharacterController::PressJump);
-		//EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &APlayerCharacterController::StopJump);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &APlayerCharacterController::ReleaseJump);
 
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &APlayerCharacterController::PressAttack);
 
 		EnhancedInputComponent->BindAction(PierceAction, ETriggerEvent::Started, this, &APlayerCharacterController::PressPierce);
-		//EnhancedInputComponent->BindAction(PierceAction, ETriggerEvent::Completed, this, &APlayerCharacterController::ReleasePierceButton);
-	}
+		EnhancedInputComponent->BindAction(PierceAction, ETriggerEvent::Completed, this, &APlayerCharacterController::ReleasePierce);
+			}
 }
 
 FMoveSignature* APlayerCharacterController::GetMoveDelegate()
@@ -45,6 +49,11 @@ FJumpSignature* APlayerCharacterController::GetJumpDelegate()
 	return &JumpDelegate;
 }
 
+FReleaseJumpSignature* APlayerCharacterController::GetReleaseJumpDelegate()
+{
+	return &ReleaseJumpDelegate;
+}
+
 FAttackSignature* APlayerCharacterController::GetAttackDelegate()
 {
 	return &AttackDelegate;
@@ -53,6 +62,11 @@ FAttackSignature* APlayerCharacterController::GetAttackDelegate()
 FPierceSignature* APlayerCharacterController::GetPierceDelegate()
 {
 	return &PierceDelegate;
+}
+
+FReleasePierceSignature* APlayerCharacterController::GetReleasePierceDelegate()
+{
+	return &ReleasePierceDelegate;
 }
 
 void APlayerCharacterController::PressMove(const FInputActionValue& Value)
@@ -71,6 +85,14 @@ void APlayerCharacterController::PressJump()
 	}
 }
 
+void APlayerCharacterController::ReleaseJump()
+{
+	if(ReleaseJumpDelegate.IsBound())
+	{
+		ReleaseJumpDelegate.Broadcast();
+	}
+}
+
 void APlayerCharacterController::PressAttack()
 {
 	if(AttackDelegate.IsBound())
@@ -84,5 +106,13 @@ void APlayerCharacterController::PressPierce()
 	if(PierceDelegate.IsBound())
 	{
 		PierceDelegate.Broadcast();
+	}
+}
+
+void APlayerCharacterController::ReleasePierce()
+{
+	if(ReleasePierceDelegate.IsBound())
+	{
+		ReleasePierceDelegate.Broadcast();
 	}
 }

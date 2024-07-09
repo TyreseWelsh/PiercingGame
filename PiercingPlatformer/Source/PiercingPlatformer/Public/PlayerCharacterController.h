@@ -13,8 +13,10 @@ struct FInputActionValue;
 // Declaring delegate (event) signatures for in-game player input
 DECLARE_MULTICAST_DELEGATE_OneParam(FMoveSignature, const FInputActionValue&);
 DECLARE_MULTICAST_DELEGATE(FJumpSignature);
+DECLARE_MULTICAST_DELEGATE(FReleaseJumpSignature);
 DECLARE_MULTICAST_DELEGATE(FAttackSignature);
 DECLARE_MULTICAST_DELEGATE(FPierceSignature);
+DECLARE_MULTICAST_DELEGATE(FReleasePierceSignature);
 
 
 
@@ -34,8 +36,10 @@ protected:
 public:
 	FMoveSignature* GetMoveDelegate();
 	FJumpSignature* GetJumpDelegate();
+	FReleaseJumpSignature* GetReleaseJumpDelegate();
 	FAttackSignature* GetAttackDelegate();
 	FPierceSignature* GetPierceDelegate();
+	FReleasePierceSignature* GetReleasePierceDelegate();
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = Input, meta = (AllowPrivateAccess))
@@ -56,12 +60,16 @@ private:
 
 	void PressMove(const FInputActionValue& Value);
 	void PressJump();
+	void ReleaseJump();
 	void PressAttack();
 	void PressPierce();
+	void ReleasePierce();
 	
 private:
 	FMoveSignature MoveDelegate;
 	FJumpSignature JumpDelegate;
+	FReleaseJumpSignature ReleaseJumpDelegate;
 	FAttackSignature AttackDelegate;
 	FPierceSignature PierceDelegate;
+	FReleasePierceSignature ReleasePierceDelegate;
 };

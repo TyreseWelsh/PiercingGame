@@ -2,6 +2,7 @@
 
 
 #include "PlayerCharacter.h"
+#include "PlayerCharacterController.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/BoxComponent.h"
@@ -87,20 +88,18 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+	
+	if (APlayerCharacterController* PlayerController = Cast<APlayerCharacterController>(Controller))
 	{
-		GEngine->AddOnScreenDebugMessage(int32(-1), 20.f, FColor::Green, "COLLISION");
-
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 		{
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 
-		LeftWallCollider->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapBegin);
+		//LeftWallCollider->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapBegin);
 
-		PierceAimDelegate.BindUFunction(this, "AimPierce", PlayerController);
-		PierceTravelDelegate.BindUFunction(this, "Pierce", PlayerController);
+		//PierceAimDelegate.BindUFunction(this, "AimPierce", PlayerController);
+		//PierceTravelDelegate.BindUFunction(this, "Pierce", PlayerController);
 
 
 		PlayerController->SetShowMouseCursor(true);
@@ -111,22 +110,22 @@ void APlayerCharacter::BeginPlay()
 
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
-	{
-		EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Run);
-
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
-
-		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &APlayerCharacter::Attack);
-
-		EnhancedInputComponent->BindAction(PierceAction, ETriggerEvent::Started, this, &APlayerCharacter::StartPierce);
-		EnhancedInputComponent->BindAction(PierceAction, ETriggerEvent::Completed, this, &APlayerCharacter::ReleasePierceButton);
-	}
-	else
-	{
-		//UE_LOG(LogTemp, Error, TEXT("%s Failed to find an Enhanced Input component!"), *GetNameSafe(this);
-	}
+	// if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
+	// {
+	// 	EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Run);
+	//
+	// 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
+	// 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+	//
+	// 	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &APlayerCharacter::Attack);
+	//
+	// 	EnhancedInputComponent->BindAction(PierceAction, ETriggerEvent::Started, this, &APlayerCharacter::StartPierce);
+	// 	EnhancedInputComponent->BindAction(PierceAction, ETriggerEvent::Completed, this, &APlayerCharacter::ReleasePierceButton);
+	// }
+	// else
+	// {
+	// 	//UE_LOG(LogTemp, Error, TEXT("%s Failed to find an Enhanced Input component!"), *GetNameSafe(this);
+	// }
 }
 
 void APlayerCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -147,17 +146,17 @@ void APlayerCharacter::SwapCamera(AActor* NewViewTarget, float BlendTime)
 	PlayerController->SetViewTargetWithBlend(NewViewTarget, BlendTime);
 }
 
-void APlayerCharacter::Jump()
-{
-	bPressedJump = true;
-	JumpKeyHoldTime = 0.0f;
-}
-
-void APlayerCharacter::StopJumping()
-{
-	bPressedJump = false;
-	ResetJumpState();
-}
+// void APlayerCharacter::Jump()
+// {
+// 	bPressedJump = true;
+// 	JumpKeyHoldTime = 0.0f;
+// }
+//
+// void APlayerCharacter::StopJumping()
+// {
+// 	bPressedJump = false;
+// 	ResetJumpState();
+// }
 
 void APlayerCharacter::TakeDamage_Implementation(int Damage)
 {
@@ -203,22 +202,23 @@ void APlayerCharacter::StartAttack_Implementation()
 	}
 }
 
-	void APlayerCharacter::EndAttack_Implementation()
-	{
-		//BasicAttack->Destroy();
-	}
+void APlayerCharacter::EndAttack_Implementation()
+{
+	//BasicAttack->Destroy();
+}
 
-	void APlayerCharacter::EnableAttackCollider_Implementation()
-	{
-		BasicAttack->GetCollider()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	}
+void APlayerCharacter::EnableAttackCollider_Implementation()
+{
+	BasicAttack->GetCollider()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+}
 
-	void APlayerCharacter::DisableAttackCollider_Implementation()
-	{
-		BasicAttack->GetCollider()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	}
+void APlayerCharacter::DisableAttackCollider_Implementation()
+{
+	BasicAttack->GetCollider()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
 
-	void APlayerCharacter::Run(const FInputActionValue& Value)
+
+void APlayerCharacter::Run(const FInputActionValue& Value)
 {
 	AddMovementInput(FVector(1.f, 0.f, 0.f), Value.Get<float>());
 }
@@ -235,183 +235,183 @@ void APlayerCharacter::Attack()
 	}
 }
 
-void APlayerCharacter::StartPierce()
-{
-	TSet<AActor*> PierceableTargets;
-	PierceRadius->GetOverlappingActors(PierceableTargets);
-
-	float DistanceToClosestTarget = 9999.f;
-
-	for (AActor* target : PierceableTargets)
-	{
-		if (IPierceable* PiercableInterface = Cast<IPierceable>(target))
-		{
-			if (PiercableInterface != nullptr)
-			{
-				float distanceToTarget = FVector::Distance(target->GetActorLocation(), GetActorLocation());
-
-				if (distanceToTarget < DistanceToClosestTarget)
-				{
-					DistanceToClosestTarget = distanceToTarget;
-					ClosestPierceTarget = target;
-				}
-			}
-		}
-	}
-
-	if (ClosestPierceTarget == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("NO TARGETS"));
-	}
-	else
-	{
-		GEngine->AddOnScreenDebugMessage(int32(-1), 20.f, FColor::Green, "Start pierce");
-
-
-		bIsPierceButtonReleased = false;
-
-		GetWorldSettings()->SetTimeDilation(0.f);
-
-		GetCharacterMovement()->Velocity = FVector(0.f, 0.f, 0.f);
-
-		GetWorld()->GetTimerManager().SetTimer(PierceAimTimer, PierceAimDelegate, 0.0002f * GetWorld()->DeltaRealTimeSeconds, true);
-	}
-
-}
-
-void APlayerCharacter::AimPierce(APlayerController* _PlayerController)
-{
-	FVector MouseLocation;
-	FVector MouseDirection;
-	_PlayerController->DeprojectMousePositionToWorld(MouseLocation, MouseDirection);
-	MouseLocation.Y = 0;
-	
-	FVector VectorFromTargetToMouse = FVector(ClosestPierceTarget->GetActorLocation().X, 0.0f, ClosestPierceTarget->GetActorLocation().Z) - FVector(MouseLocation.X, 0.f, MouseLocation.Z);
-	
-	VectorFromTargetToMouse.Normalize();
-	PierceDirection = VectorFromTargetToMouse * -1;
-
-	PierceDistanceMultiplier -= GetWorld()->DeltaRealTimeSeconds;
-	if (PierceDistanceMultiplier <= 0.35f)															// Distance multiplier was 0.4 but has been divided by 10 to account for delta times small values
-	{
-		// NOTE: Ideally exit the pierce state which will cancel the pierce all together easily
-		ClosestPierceTarget = nullptr;
-		EndPierce();
-		return;
-	}
-
-	// Pierce distance multiplied by PierceDistanceMultiplier so the distance covered is continuously reduced while the player holds the button, incentivising faster gameplay
-	FVector PiercePower = (PierceDirection * PierceDistance) * PierceDistanceMultiplier;
-	PierceEndPos = ClosestPierceTarget->GetActorLocation() + PiercePower;
-	PierceStartPos = ClosestPierceTarget->GetActorLocation() + (-1 * PiercePower / 2);
-
-
-	if(!IsValid(PierceAimHead))
-	{
-		FTransform PierceHeadTransform;
-		PierceHeadTransform.SetLocation(PierceEndPos);
-		PierceHeadTransform.SetRotation(UKismetMathLibrary::FindLookAtRotation(PierceEndPos, MouseLocation).Quaternion());
-		
-		PierceAimHead = GetWorld()->SpawnActor<AActor>(PierceHeadBP, PierceHeadTransform);
-	}
-	else
-	{
-		PierceAimHead->SetActorLocation(PierceEndPos);
-		PierceAimHead->SetActorRotation(UKismetMathLibrary::FindLookAtRotation(PierceEndPos, MouseLocation).Quaternion());
-	}
-
-	if(!IsValid(PierceAimTail))
-	{
-		FTransform PierceTailTransform;
-		PierceTailTransform.SetLocation(PierceStartPos);
-		PierceTailTransform.SetRotation(UKismetMathLibrary::FindLookAtRotation(PierceStartPos, MouseLocation).Quaternion());
-
-		PierceAimTail = GetWorld()->SpawnActor<AActor>(PierceTailBP, PierceTailTransform);
-	}
-	else
-	{
-		PierceAimTail->SetActorLocation(PierceStartPos);
-		PierceAimTail->SetActorRotation(UKismetMathLibrary::FindLookAtRotation(PierceStartPos, MouseLocation).Quaternion());
-	}
-	
-
-	PierceStartDelay += GetWorld()->DeltaRealTimeSeconds;
-	if (PierceStartDelay >= MAX_PIERCE_START_DELAY && bIsPierceButtonReleased)
-	{
-		EndPierce();
-	}
-
-	//DrawDebugLine(GetWorld(), ClosestPierceTarget->GetActorLocation(), PierceEndPos, FColor::Red);
-	//DrawDebugLine(GetWorld(), ClosestPierceTarget->GetActorLocation(), PierceStartPos, FColor::Yellow);
-}
-
-void APlayerCharacter::EndPierce()
-{
-	GetWorldSettings()->SetTimeDilation(1.f);
-
-	if (IsValid(ClosestPierceTarget))
-	{
-		GEngine->AddOnScreenDebugMessage(int32(-1), 20.f, FColor::Green, "End pierce");
-
-		GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Ignore);
-		if (APlayerController* _PlayerController = Cast<APlayerController>(GetController()))
-		{
-			DisableInput(_PlayerController);
-			GetCharacterMovement()->Velocity = FVector(0, 0, 0);
-			SetActorLocation(PierceStartPos, false, (FHitResult*)nullptr, ETeleportType::TeleportPhysics);
-
-			GetWorld()->GetTimerManager().SetTimer(PierceTravelTimer, PierceTravelDelegate, 0.01f, true);
-		}
-	}
-
-	if (PierceAimTimer.IsValid())
-	{
-		GetWorld()->GetTimerManager().ClearTimer(PierceAimTimer);
-	}
-	if(IsValid(PierceAimHead))
-	{
-		PierceAimHead->Destroy();
-	}
-	if(IsValid(PierceAimTail))
-	{
-		PierceAimTail->Destroy();
-	}
-	PierceDistanceMultiplier = 1.f;
-}
-
-void APlayerCharacter::Pierce(APlayerController* _PlayerController)
-{
-	if (PierceTravelPercent <= 1.f)
-	{
-		FVector NewActorLocation = PierceStartPos + (PierceEndPos - PierceStartPos) * PierceTravelPercent;
-		SetActorLocation(NewActorLocation, true);
-		PierceTravelPercent += 0.05;
-
-		if (PierceTravelPercent >= 0.5f)
-		{
-			GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
-		}
-	}
-	else
-	{
-		GetCharacterMovement()->Velocity = PierceDirection * 1000.f;
-		ResetPierceValues();
-		EnableInput(_PlayerController);
-		GetWorld()->GetTimerManager().ClearTimer(PierceTravelTimer);
-	}
-}
-
-void APlayerCharacter::ResetPierceValues()
-{
-	PierceDirection = FVector::Zero();
-	PierceStartPos = FVector::Zero();
-	PierceEndPos = FVector::Zero();
-	ClosestPierceTarget = nullptr;
-	PierceTravelPercent = 0.f;
-	JumpCurrentCount = 0;
-}
-
-void APlayerCharacter::ReleasePierceButton()
-{
-	bIsPierceButtonReleased = true;
-}
+// void APlayerCharacter::StartPierce()
+// {
+// 	TSet<AActor*> PierceableTargets;
+// 	PierceRadius->GetOverlappingActors(PierceableTargets);
+//
+// 	float DistanceToClosestTarget = 9999.f;
+//
+// 	for (AActor* target : PierceableTargets)
+// 	{
+// 		if (IPierceable* PiercableInterface = Cast<IPierceable>(target))
+// 		{
+// 			if (PiercableInterface != nullptr)
+// 			{
+// 				float distanceToTarget = FVector::Distance(target->GetActorLocation(), GetActorLocation());
+//
+// 				if (distanceToTarget < DistanceToClosestTarget)
+// 				{
+// 					DistanceToClosestTarget = distanceToTarget;
+// 					ClosestPierceTarget = target;
+// 				}
+// 			}
+// 		}
+// 	}
+//
+// 	if (ClosestPierceTarget == nullptr)
+// 	{
+// 		UE_LOG(LogTemp, Error, TEXT("NO TARGETS"));
+// 	}
+// 	else
+// 	{
+// 		GEngine->AddOnScreenDebugMessage(int32(-1), 20.f, FColor::Green, "Start pierce");
+//
+//
+// 		bIsPierceButtonReleased = false;
+//
+// 		GetWorldSettings()->SetTimeDilation(0.f);
+//
+// 		GetCharacterMovement()->Velocity = FVector(0.f, 0.f, 0.f);
+//
+// 		GetWorld()->GetTimerManager().SetTimer(PierceAimTimer, PierceAimDelegate, 0.0002f * GetWorld()->DeltaRealTimeSeconds, true);
+// 	}
+//
+// }
+//
+// void APlayerCharacter::AimPierce(APlayerController* _PlayerController)
+// {
+// 	FVector MouseLocation;
+// 	FVector MouseDirection;
+// 	_PlayerController->DeprojectMousePositionToWorld(MouseLocation, MouseDirection);
+// 	MouseLocation.Y = 0;
+// 	
+// 	FVector VectorFromTargetToMouse = FVector(ClosestPierceTarget->GetActorLocation().X, 0.0f, ClosestPierceTarget->GetActorLocation().Z) - FVector(MouseLocation.X, 0.f, MouseLocation.Z);
+// 	
+// 	VectorFromTargetToMouse.Normalize();
+// 	PierceDirection = VectorFromTargetToMouse * -1;
+//
+// 	PierceDistanceMultiplier -= GetWorld()->DeltaRealTimeSeconds;
+// 	if (PierceDistanceMultiplier <= 0.35f)															// Distance multiplier was 0.4 but has been divided by 10 to account for delta times small values
+// 	{
+// 		// NOTE: Ideally exit the pierce state which will cancel the pierce all together easily
+// 		ClosestPierceTarget = nullptr;
+// 		EndPierce();
+// 		return;
+// 	}
+//
+// 	// Pierce distance multiplied by PierceDistanceMultiplier so the distance covered is continuously reduced while the player holds the button, incentivising faster gameplay
+// 	FVector PiercePower = (PierceDirection * PierceDistance) * PierceDistanceMultiplier;
+// 	PierceEndPos = ClosestPierceTarget->GetActorLocation() + PiercePower;
+// 	PierceStartPos = ClosestPierceTarget->GetActorLocation() + (-1 * PiercePower / 2);
+//
+//
+// 	if(!IsValid(PierceAimHead))
+// 	{
+// 		FTransform PierceHeadTransform;
+// 		PierceHeadTransform.SetLocation(PierceEndPos);
+// 		PierceHeadTransform.SetRotation(UKismetMathLibrary::FindLookAtRotation(PierceEndPos, MouseLocation).Quaternion());
+// 		
+// 		PierceAimHead = GetWorld()->SpawnActor<AActor>(PierceHeadBP, PierceHeadTransform);
+// 	}
+// 	else
+// 	{
+// 		PierceAimHead->SetActorLocation(PierceEndPos);
+// 		PierceAimHead->SetActorRotation(UKismetMathLibrary::FindLookAtRotation(PierceEndPos, MouseLocation).Quaternion());
+// 	}
+//
+// 	if(!IsValid(PierceAimTail))
+// 	{
+// 		FTransform PierceTailTransform;
+// 		PierceTailTransform.SetLocation(PierceStartPos);
+// 		PierceTailTransform.SetRotation(UKismetMathLibrary::FindLookAtRotation(PierceStartPos, MouseLocation).Quaternion());
+//
+// 		PierceAimTail = GetWorld()->SpawnActor<AActor>(PierceTailBP, PierceTailTransform);
+// 	}
+// 	else
+// 	{
+// 		PierceAimTail->SetActorLocation(PierceStartPos);
+// 		PierceAimTail->SetActorRotation(UKismetMathLibrary::FindLookAtRotation(PierceStartPos, MouseLocation).Quaternion());
+// 	}
+// 	
+//
+// 	PierceStartDelay += GetWorld()->DeltaRealTimeSeconds;
+// 	if (PierceStartDelay >= MAX_PIERCE_START_DELAY && bIsPierceButtonReleased)
+// 	{
+// 		EndPierce();
+// 	}
+//
+// 	//DrawDebugLine(GetWorld(), ClosestPierceTarget->GetActorLocation(), PierceEndPos, FColor::Red);
+// 	//DrawDebugLine(GetWorld(), ClosestPierceTarget->GetActorLocation(), PierceStartPos, FColor::Yellow);
+// }
+//
+// void APlayerCharacter::EndPierce()
+// {
+// 	GetWorldSettings()->SetTimeDilation(1.f);
+//
+// 	if (IsValid(ClosestPierceTarget))
+// 	{
+// 		GEngine->AddOnScreenDebugMessage(int32(-1), 20.f, FColor::Green, "End pierce");
+//
+// 		GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Ignore);
+// 		if (APlayerController* _PlayerController = Cast<APlayerController>(GetController()))
+// 		{
+// 			DisableInput(_PlayerController);
+// 			GetCharacterMovement()->Velocity = FVector(0, 0, 0);
+// 			SetActorLocation(PierceStartPos, false, (FHitResult*)nullptr, ETeleportType::TeleportPhysics);
+//
+// 			GetWorld()->GetTimerManager().SetTimer(PierceTravelTimer, PierceTravelDelegate, 0.01f, true);
+// 		}
+// 	}
+//
+// 	if (PierceAimTimer.IsValid())
+// 	{
+// 		GetWorld()->GetTimerManager().ClearTimer(PierceAimTimer);
+// 	}
+// 	if(IsValid(PierceAimHead))
+// 	{
+// 		PierceAimHead->Destroy();
+// 	}
+// 	if(IsValid(PierceAimTail))
+// 	{
+// 		PierceAimTail->Destroy();
+// 	}
+// 	PierceDistanceMultiplier = 1.f;
+// }
+//
+// void APlayerCharacter::Pierce(APlayerController* _PlayerController)
+// {
+// 	if (PierceTravelPercent <= 1.f)
+// 	{
+// 		FVector NewActorLocation = PierceStartPos + (PierceEndPos - PierceStartPos) * PierceTravelPercent;
+// 		SetActorLocation(NewActorLocation, true);
+// 		PierceTravelPercent += 0.05;
+//
+// 		if (PierceTravelPercent >= 0.5f)
+// 		{
+// 			GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
+// 		}
+// 	}
+// 	else
+// 	{
+// 		GetCharacterMovement()->Velocity = PierceDirection * 1000.f;
+// 		ResetPierceValues();
+// 		EnableInput(_PlayerController);
+// 		GetWorld()->GetTimerManager().ClearTimer(PierceTravelTimer);
+// 	}
+// }
+//
+// void APlayerCharacter::ResetPierceValues()
+// {
+// 	PierceDirection = FVector::Zero();
+// 	PierceStartPos = FVector::Zero();
+// 	PierceEndPos = FVector::Zero();
+// 	ClosestPierceTarget = nullptr;
+// 	PierceTravelPercent = 0.f;
+// 	JumpCurrentCount = 0;
+// }
+//
+// void APlayerCharacter::ReleasePierceButton()
+// {
+// 	bIsPierceButtonReleased = true;
+// }
