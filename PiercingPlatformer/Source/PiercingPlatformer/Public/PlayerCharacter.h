@@ -27,10 +27,10 @@ class PIERCINGPLATFORMER_API APlayerCharacter : public APaperZDCharacter, public
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
 	USphereComponent* PierceRadius;
 
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	UBoxComponent* LeftWallCollider;
 
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	UBoxComponent* RightWallCollider;
 
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess))
@@ -71,6 +71,10 @@ protected:
 public:
 	UFUNCTION()
 	USphereComponent* GetPierceRadiusComponent() { return PierceRadius; }
+	UFUNCTION()
+	UBoxComponent* GetLeftWallCollider() { return LeftWallCollider; }
+	UFUNCTION()
+	UBoxComponent* GetRightWallCollider() { return RightWallCollider; }
 	UFUNCTION()
 	ULogicStateManagerComponent* GetLogicStateManagerComponent() { return LogicStateManagerComponent; }
 	
@@ -119,6 +123,7 @@ public:
 	int Health = 100;
 
 	// Piercing
+	UPROPERTY()
 	TObjectPtr<AActor> ClosestPierceTarget;
 	float PierceForce = 3000.f;
 	FVector PierceDirection;
@@ -137,7 +142,9 @@ public:
 	float MAX_PIERCE_START_DELAY = 0.025f;
 	bool bIsPierceButtonReleased = true;
 
+	UPROPERTY()
 	TObjectPtr<AActor> PierceAimHead;
+	UPROPERTY()
 	TObjectPtr<AActor> PierceAimTail;
 	
 	UPROPERTY(EditDefaultsOnly, Category = Piercing, meta = (AllowPrivateAccess))
@@ -148,6 +155,7 @@ public:
 	
 	
 	// Attacking
+	UPROPERTY()
 	TObjectPtr<ABasicAttack> BasicAttack;
 
 	UPROPERTY(EditDefaultsOnly, Category = Attacking, meta = (AllowPrivateAccess = "true"))

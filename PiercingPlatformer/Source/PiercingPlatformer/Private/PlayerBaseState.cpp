@@ -69,7 +69,7 @@ void UPlayerBaseState::Move(const FInputActionValue& Value)
 
 void UPlayerBaseState::Jump()
 {
-	if(PlayerRef->JumpCurrentCount < PlayerRef->JumpMaxCount)
+	if(PlayerRef->JumpCurrentCount <= PlayerRef->JumpMaxCount)
 	{
 		PlayerRef->Jump();
 		PlayerRef->GetLogicStateManagerComponent()->SwitchStateByKey("InAir");

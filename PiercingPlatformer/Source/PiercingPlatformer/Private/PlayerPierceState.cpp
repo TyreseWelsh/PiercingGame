@@ -71,17 +71,22 @@ void UPlayerPierceState::Attack()
 
 void UPlayerPierceState::EnterPierce()
 {
+	GEngine->AddOnScreenDebugMessage(int32(-1), 20.f, FColor::Green, "EnterPierce");
+
 	PlayerRef->bIsPierceButtonReleased = false;
 	
 	PlayerRef->GetWorldSettings()->SetTimeDilation(0.f);
 
 	PlayerRef->GetCharacterMovement()->Velocity = FVector(0.f, 0.f, 0.f);
 
+	GEngine->AddOnScreenDebugMessage(int32(-1), 20.f, FColor::Green, "About to AIMPIERCE");
 	GetWorld()->GetTimerManager().SetTimer(PierceAimTimer, PierceAimDelegate, 0.0002f * GetWorld()->DeltaRealTimeSeconds, true);
 }
 
 void UPlayerPierceState::AimPierce()
 {
+	GEngine->AddOnScreenDebugMessage(int32(-1), 20.f, FColor::Green, "STARTED AIMPIERCE");
+
 	if(IsValid(PlayerRef))
 	{
 		FVector MouseLocation;

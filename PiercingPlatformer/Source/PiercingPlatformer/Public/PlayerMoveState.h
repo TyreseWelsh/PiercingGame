@@ -13,7 +13,8 @@ UCLASS()
 class PIERCINGPLATFORMER_API UPlayerMoveState : public UPlayerBaseState
 {
 	GENERATED_BODY()
-
+	
+	virtual void OnStateEnter(AActor* StateOwner) override;
 	virtual void OnStateTick() override;
 
 };

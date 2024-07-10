@@ -51,22 +51,24 @@ APlayerCharacter::APlayerCharacter()
 	
 	// Left wall jump collider
 	LeftWallCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("LeftWallCollider"));
-	LeftWallCollider->SetRelativeLocation(FVector(-35.f, 0.f, 0.f));
-	LeftWallCollider->InitBoxExtent(FVector(4.f, 32.f, 46.f));
+	LeftWallCollider->SetRelativeLocation(FVector(-36.f, 0.f, 0.f));
+	LeftWallCollider->InitBoxExtent(FVector(4.f, 32.f, 32.f));
 	LeftWallCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	LeftWallCollider->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel1);
 	LeftWallCollider->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	LeftWallCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Overlap);
+	LeftWallCollider->SetUsingAbsoluteRotation(true);
 	LeftWallCollider->SetupAttachment(RootComponent);
 
 	// Right wall jump collider
 	RightWallCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("RightWallCollider"));
-	RightWallCollider->SetRelativeLocation(FVector(35.f, 0.f, 0.f));
-	RightWallCollider->InitBoxExtent(FVector(4.f, 32.f, 46.f));
+	RightWallCollider->SetRelativeLocation(FVector(36.f, 0.f, 0.f));
+	RightWallCollider->InitBoxExtent(FVector(4.f, 32.f, 32.f));
 	RightWallCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	RightWallCollider->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel1);
 	RightWallCollider->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	RightWallCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Overlap);
+	RightWallCollider->SetUsingAbsoluteRotation(true);
 	RightWallCollider->SetupAttachment(RootComponent);
 
 	LogicStateManagerComponent = CreateDefaultSubobject<ULogicStateManagerComponent>(TEXT("LogicStateManager"));
@@ -171,16 +173,15 @@ void APlayerCharacter::TakeDamage_Implementation(int Damage)
 
 void APlayerCharacter::StartAttack_Implementation()
 {
-	if (APlayerController* _PlayerController = Cast<APlayerController>(GetController()))
+	if (APlayerCharacterController* _PlayerController = Cast<APlayerCharacterController>(GetController()))
 	{
 		// If attack obj already exists, destroy it
-		if (BasicAttack != nullptr)
+		if (IsValid(BasicAttack))
 		{
 			BasicAttack->Destroy();
 		}
-
-
-		FTransform NewBasicAttackTransform;
+		
+		FTransform NewBasicAttackTransform = FTransform::Identity;
 
 		// New Location
 		NewBasicAttackTransform.SetLocation(GetActorLocation());

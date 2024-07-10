@@ -7,6 +7,11 @@
 #include "PlayerCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+void UPlayerMoveState::OnStateEnter(AActor* StateOwner)
+{
+	Super::OnStateEnter(StateOwner);
+}
+
 void UPlayerMoveState::OnStateTick()
 {
 	Super::OnStateTick();
