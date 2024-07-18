@@ -15,9 +15,6 @@ void UPlayerInAirState::OnStateEnter(AActor* StateOwner)
 
 	if(IsValid(PlayerRef))
 	{
-		PlayerRef->GetLeftWallCollider()->OnComponentBeginOverlap.AddDynamic(this, &UPlayerInAirState::OnBeginOverlap);
-		PlayerRef->GetRightWallCollider()->OnComponentBeginOverlap.AddDynamic(this, &UPlayerInAirState::OnBeginOverlap);
-
 		if(PlayerRef->JumpCurrentCount == 1)
 		{
 			//GEngine->AddOnScreenDebugMessage(int32(-1), 20.f, FColor::Green, "Double jump!");
@@ -29,7 +26,7 @@ void UPlayerInAirState::OnStateTick()
 {
 	Super::OnStateTick();
 	
-	if(PlayerRef->GetCharacterMovement()->Velocity.Z == 0)
+	if(PlayerRef->GetCharacterMovement()->Velocity.Z == 0 && PlayerRef->GetCharacterMovement()->IsMovingOnGround())
 	{
 		PlayerRef->GetLogicStateManagerComponent()->SwitchStateByKey("Idle");
 	}
@@ -38,9 +35,8 @@ void UPlayerInAirState::OnStateTick()
 void UPlayerInAirState::OnStateExit()
 {
 	Super::OnStateExit();
-
-	PlayerRef->GetLeftWallCollider()->OnComponentBeginOverlap.RemoveAll(this);
-	PlayerRef->GetRightWallCollider()->OnComponentBeginOverlap.RemoveAll(this);
+	
+	PlayerRef->GetWallCollider()->OnComponentBeginOverlap.RemoveAll(this);
 }
 
 void UPlayerInAirState::Move(const FInputActionValue& Value)
@@ -48,7 +44,7 @@ void UPlayerInAirState::Move(const FInputActionValue& Value)
 	PlayerRef->AddMovementInput(FVector(1.f, 0.f, 0.f), Value.Get<float>());
 	
 	TArray<AActor*> RightOverlappingWalls;
-	PlayerRef->GetRightWallCollider()->GetOverlappingActors(RightOverlappingWalls);
+	PlayerRef->GetWallCollider()->GetOverlappingActors(RightOverlappingWalls);
 
 	if(RightOverlappingWalls.Num() > 0)
 	{

@@ -9,6 +9,7 @@
 #include "PierceableObject.generated.h"
 
 class USphereComponent;
+class UPaperFlipbookComponent;
 
 UCLASS()
 class PIERCINGPLATFORMER_API APierceableObject : public AActor, public IPierceable, public IDamageable
@@ -19,7 +20,7 @@ class PIERCINGPLATFORMER_API APierceableObject : public AActor, public IPierceab
 	USphereComponent* Collider;
 
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess))
-	UStaticMeshComponent* TempSphere;
+	UPaperFlipbookComponent* PierceEmblem;
 
 public:	
 	// Sets default values for this actor's properties

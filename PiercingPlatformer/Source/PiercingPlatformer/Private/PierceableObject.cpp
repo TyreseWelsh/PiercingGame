@@ -3,6 +3,7 @@
 
 #include "PierceableObject.h"
 #include "Components/SphereComponent.h"
+#include "PaperFlipbookComponent.h"
 
 // Sets default values
 APierceableObject::APierceableObject()
@@ -17,10 +18,10 @@ APierceableObject::APierceableObject()
 	Collider->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
 	RootComponent = Collider;
 
-	TempSphere = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Sphere"));
-	TempSphere->SetWorldScale3D(FVector(0.5f, 0.5f, 0.5f));
-	TempSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	TempSphere->SetupAttachment(RootComponent);
+	PierceEmblem = CreateDefaultSubobject<UPaperFlipbookComponent>(TEXT("PierceEmblemFB"));
+	//PierceEmblem->SetWorldScale3D(FVector(0.5f, 0.5f, 0.5f));
+	PierceEmblem->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	PierceEmblem->SetupAttachment(RootComponent);
 
 }
 

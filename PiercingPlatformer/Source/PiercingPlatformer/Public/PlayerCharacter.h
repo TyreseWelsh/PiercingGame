@@ -28,10 +28,7 @@ class PIERCINGPLATFORMER_API APlayerCharacter : public APaperZDCharacter, public
 	USphereComponent* PierceRadius;
 
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
-	UBoxComponent* LeftWallCollider;
-
-	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
-	UBoxComponent* RightWallCollider;
+	UBoxComponent* WallCollider;
 
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess))
 	ULogicStateManagerComponent* LogicStateManagerComponent;
@@ -71,10 +68,10 @@ protected:
 public:
 	UFUNCTION()
 	USphereComponent* GetPierceRadiusComponent() { return PierceRadius; }
+	// UFUNCTION()
+	// UBoxComponent* GetLeftWallCollider() { return LeftWallCollider; }
 	UFUNCTION()
-	UBoxComponent* GetLeftWallCollider() { return LeftWallCollider; }
-	UFUNCTION()
-	UBoxComponent* GetRightWallCollider() { return RightWallCollider; }
+	UBoxComponent* GetWallCollider() { return WallCollider; }
 	UFUNCTION()
 	ULogicStateManagerComponent* GetLogicStateManagerComponent() { return LogicStateManagerComponent; }
 	

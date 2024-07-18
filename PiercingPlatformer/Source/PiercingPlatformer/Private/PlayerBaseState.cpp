@@ -46,6 +46,7 @@ void UPlayerBaseState::OnStateEnter(AActor* StateOwner)
 void UPlayerBaseState::OnStateTick()
 {
 	Super::OnStateTick();
+
 }
 
 void UPlayerBaseState::OnStateExit()
@@ -78,6 +79,11 @@ void UPlayerBaseState::Jump()
 
 void UPlayerBaseState::ReleaseJump()
 {
+	if(PlayerRef->GetVelocity().Z > 0 && PlayerRef->GetVelocity().Z)
+	{
+		//PlayerRef->GetCharacterMovement()->Velocity.Z = PlayerRef->GetCharacterMovement()->JumpZVelocity / 2.25;
+		PlayerRef->GetCharacterMovement()->Velocity.Z = 0;
+	}
 	PlayerRef->StopJumping();
 }
 
