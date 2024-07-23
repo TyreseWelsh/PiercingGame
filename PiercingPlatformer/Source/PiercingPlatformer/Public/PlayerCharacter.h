@@ -28,8 +28,10 @@ class PIERCINGPLATFORMER_API APlayerCharacter : public APaperZDCharacter, public
 	USphereComponent* PierceRadius;
 
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
-	UBoxComponent* WallCollider;
-
+	UBoxComponent* LeftWallCollider;
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
+	UBoxComponent* RightWallCollider;
+	
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess))
 	ULogicStateManagerComponent* LogicStateManagerComponent;
 
@@ -71,7 +73,10 @@ public:
 	// UFUNCTION()
 	// UBoxComponent* GetLeftWallCollider() { return LeftWallCollider; }
 	UFUNCTION()
-	UBoxComponent* GetWallCollider() { return WallCollider; }
+	UBoxComponent* GetLeftWallCollider() { return LeftWallCollider; }
+	UFUNCTION()
+	UBoxComponent* GetRightWallCollider() { return RightWallCollider; }
+	
 	UFUNCTION()
 	ULogicStateManagerComponent* GetLogicStateManagerComponent() { return LogicStateManagerComponent; }
 	
@@ -95,30 +100,21 @@ public:
 	//void Jump(const FInputActionValue& Value);		// Will be a custom jump function overriding the base implementation
 
 	void Attack();
-
-
-	//UFUNCTION(Category = Pierce)
-	void StartPierce();
 	
-	//UFUNCTION()
-	//void AimPierce(APlayerController* _PlayerController);
-
-	//UFUNCTION(Category = Pierce)
-	void EndPierce();
-
-	//UFUNCTION()
-	//void Pierce(APlayerController* _PlayerController);
-
-	//UFUNCTION(Category = Pierce)
-	void ResetPierceValues();
-
-	void ReleasePierceButton();
 
 	bool bIsRunning = false;
+	// bIsRunningForward is strictly for animation and is used in the anim BP
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	bool bIsRunningForward = true;
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	float CurrentMovementDirection;
 	bool bIsInAir = false;
 
 	int Health = 100;
 
+	bool bIsJumpBuffered = false;
+	bool bIsWallOnRight = false;
+	
 	// Piercing
 	UPROPERTY()
 	TObjectPtr<AActor> ClosestPierceTarget;
@@ -129,10 +125,6 @@ public:
 	float PierceTravelPercent;
 	float PierceDistance = 350.f;
 	float PierceDistanceMultiplier = 1.f;
-	// FTimerHandle PierceAimTimer;
-	// FTimerDelegate PierceAimDelegate;
-	// FTimerHandle PierceTravelTimer;
-	// FTimerDelegate PierceTravelDelegate;
 	bool bIsPiercing = false;
 
 	float PierceStartDelay = 0.f;
@@ -151,7 +143,7 @@ public:
 	TSubclassOf<AActor> PierceTailBP;
 	
 	
-	// Attacking
+	// Melee Attacking
 	UPROPERTY()
 	TObjectPtr<ABasicAttack> BasicAttack;
 
@@ -161,5 +153,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = Attacking, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<ABasicAttack> AttackToSpawn;
 
-	
+	// Ranged Attacking
+	UPROPERTY()
+	TObjectPtr<AActor> RangedWeapon;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Ranged Attacking", meta = (AllowPrivateAccess = true))
+	TSubclassOf<AActor> RangedWeaponToSpawn;
 };

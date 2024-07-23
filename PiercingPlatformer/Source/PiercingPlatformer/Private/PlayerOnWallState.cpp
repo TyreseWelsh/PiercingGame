@@ -12,10 +12,13 @@
 void UPlayerOnWallState::OnStateEnter(AActor* StateOwner)
 {
 	Super::OnStateEnter(StateOwner);
+	//GEngine->AddOnScreenDebugMessage(int32(-1), 10.f, FColor::Green, "entererd on wall");
 
 	if(IsValid(PlayerRef))
 	{
 		PlayerRef->JumpCurrentCount = 0;
+
+		LaunchVelZ = PlayerRef->GetCharacterMovement()->JumpZVelocity;
 	}
 }
 
@@ -29,54 +32,45 @@ void UPlayerOnWallState::OnStateTick()
 		{
 			PlayerRef->GetCharacterMovement()->Velocity.Z = -MAX_WALLSLIDE_SPEED;
 		}
-
+		
 		if(PlayerRef->GetCharacterMovement()->Velocity.X == 0 && !bMovingTowardsWall)
 		{
 			PlayerRef->GetLogicStateManagerComponent()->SwitchStateByKey("InAir");
 		}
+
+		if(PlayerRef->GetCharacterMovement()->Velocity.Z == 0)
+		{
+			PlayerRef->GetLogicStateManagerComponent()->SwitchStateByKey("Idle");
+		}
 	}
 
-	bMovingTowardsWall = false;
+	// NOTE: If I want the player to need to hold movement towards the wall to keep them wall sliding
+	//		 If commented, player does not need to continuously move towards wall to keep OnWallState
+	//		 If uncommented, player will need to continuously move towards wall to keep OnWallState
+	//bMovingTowardsWall = false;
 
-	TArray<AActor*> OverlappingWalls;
-	PlayerRef->GetWallCollider()->GetOverlappingActors(OverlappingWalls);
-	if(OverlappingWalls.Num() > 0)
+	TArray<AActor*> LeftOverlappingWalls;
+	PlayerRef->GetLeftWallCollider()->GetOverlappingActors(LeftOverlappingWalls);
+
+	TArray<AActor*> RightOverlappingWalls;
+	PlayerRef->GetRightWallCollider()->GetOverlappingActors(RightOverlappingWalls);
+	
+	if(LeftOverlappingWalls.Num() > 0)
 	{
-		FHitResult hit;
-		FVector ColliderLocation = PlayerRef->GetWallCollider()->GetComponentTransform().GetLocation();
-		FVector ColliderTraceStartPos = FVector(ColliderLocation.X, 0, ColliderLocation.Z + PlayerRef->GetWallCollider()->GetScaledBoxExtent().Z);
-		FVector ColliderTraceEndPos = FVector(ColliderLocation.X, 0, ColliderLocation.Z - PlayerRef->GetWallCollider()->GetScaledBoxExtent().Z);
+		GEngine->AddOnScreenDebugMessage(int32(-1), 10.f, FColor::Green, "left wall");
 
-		DrawDebugLine(GetWorld(), ColliderTraceStartPos, ColliderTraceEndPos, FColor::Green, false, 1, 0, 10.f);
-		
-		if(GetWorld()->LineTraceSingleByChannel(hit, ColliderTraceStartPos, ColliderTraceEndPos, ECollisionChannel::ECC_GameTraceChannel1))
-		{
-			GEngine->AddOnScreenDebugMessage(int32(-1), 1.f, FColor::Green, "hit");
+		CheckOverlappingWallCollision(PlayerRef->GetLeftWallCollider());
+	}
+	else if(RightOverlappingWalls.Num() > 0)
+	{
+		GEngine->AddOnScreenDebugMessage(int32(-1), 10.f, FColor::Green, "right wall");
 
-			if(hit.Location.X < PlayerRef->GetActorLocation().X)
-			{
-				GEngine->AddOnScreenDebugMessage(int32(-1), 1.f, FColor::Green, "colliding left");
-
-				bIsCollidingRight = false;
-			}
-
-			GEngine->AddOnScreenDebugMessage(int32(-1), 1.f, FColor::Green, FString::SanitizeFloat(hit.Location.X));
-
-			if(hit.Location.X > PlayerRef->GetActorLocation().X)
-			{
-				GEngine->AddOnScreenDebugMessage(int32(-1), 1.f, FColor::Green, "colliding right");
-
-				bIsCollidingRight = true;
-			}
-		}
-		else
-		{
-			GEngine->AddOnScreenDebugMessage(int32(-1), 1.f, FColor::Green, "no trace hit");
-
-		}
+		CheckOverlappingWallCollision(PlayerRef->GetRightWallCollider());
 	}
 	else
 	{
+		GEngine->AddOnScreenDebugMessage(int32(-1), 1.f, FColor::Green, "overlap not ont");
+
 		PlayerRef->GetLogicStateManagerComponent()->SwitchStateByKey("InAir");
 	}
 }
@@ -104,20 +98,41 @@ void UPlayerOnWallState::Move(const FInputActionValue& Value)
 
 void UPlayerOnWallState::Jump()
 {
-	//GEngine->AddOnScreenDebugMessage(int32(-1), 1.f, FColor::Green, "ju");
-
 	if(bIsCollidingRight)
 	{
 		PlayerRef->LaunchCharacter(FVector(-LaunchVelX,0,LaunchVelZ), true, true);
-		//GEngine->AddOnScreenDebugMessage(int32(-1), 1.f, FColor::Green, "colliding right");
-
 	}
 	else
 	{
-		//GEngine->AddOnScreenDebugMessage(int32(-1), 1.f, FColor::Green, "colliding left");
-
 		PlayerRef->LaunchCharacter(FVector(LaunchVelX, 0, LaunchVelZ), true, true);
 	}
 
 	PlayerRef->GetLogicStateManagerComponent()->SwitchStateByKey("InAir");
+}
+
+void UPlayerOnWallState::CheckOverlappingWallCollision(UBoxComponent* WallCollider)
+{
+	FHitResult hit;
+	FVector ColliderLocation = WallCollider->GetComponentTransform().GetLocation();
+	FVector ColliderTraceStartPos = FVector(ColliderLocation.X, 0, ColliderLocation.Z + WallCollider->GetScaledBoxExtent().Z);
+	FVector ColliderTraceEndPos = FVector(ColliderLocation.X, 0, ColliderLocation.Z - WallCollider->GetScaledBoxExtent().Z);
+
+	DrawDebugLine(GetWorld(), ColliderTraceStartPos, ColliderTraceEndPos, FColor::Green, false, 1, 0, 10.f);
+		
+	if(GetWorld()->LineTraceSingleByChannel(hit, ColliderTraceStartPos, ColliderTraceEndPos, ECollisionChannel::ECC_GameTraceChannel1))
+	{
+		if(hit.Location.X < PlayerRef->GetActorLocation().X)
+		{
+			bIsCollidingRight = false;
+		}
+
+		if(hit.Location.X > PlayerRef->GetActorLocation().X)
+		{
+			bIsCollidingRight = true;
+		}
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(int32(-1), 1.f, FColor::Green, "no wall trace hit");
+	}
 }

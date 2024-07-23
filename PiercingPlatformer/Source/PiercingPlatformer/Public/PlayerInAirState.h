@@ -20,4 +20,9 @@ public:
 	virtual void OnStateExit() override;
 
 	virtual void Move(const FInputActionValue& Value);
+	virtual void Jump();
+
+private:
+	// Number of frames jump can be buffered for
+	int JumpBufferFrameCounter = 5;
 };

@@ -32,11 +32,4 @@ public:
 	virtual void ReleaseJump();
 	virtual void Attack();
 	virtual void PressPierce();
-	
- 	// DONE: Move these functions to header of Pierce state
-// 	void AimPierce();
-// 	void EndPierce();
-// 	void Pierce();
-// 	void ResetPierceValues();
-// 	void ReleasePierceButton();
 };

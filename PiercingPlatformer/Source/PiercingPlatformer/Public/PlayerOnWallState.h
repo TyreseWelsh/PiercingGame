@@ -6,6 +6,8 @@
 #include "PlayerBaseState.h"
 #include "PlayerOnWallState.generated.h"
 
+class UBoxComponent;
+
 /**
  * 
  */
@@ -22,6 +24,7 @@ public:
 	virtual void Move(const FInputActionValue& Value);
 	virtual void Jump();
 
+	void CheckOverlappingWallCollision(UBoxComponent* WallCollider);
 private:
 	const float MAX_WALLSLIDE_SPEED = 300.f;
 	bool bIsCollidingRight = false;

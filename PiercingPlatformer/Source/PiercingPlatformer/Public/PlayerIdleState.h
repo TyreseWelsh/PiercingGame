@@ -15,7 +15,7 @@ class PIERCINGPLATFORMER_API UPlayerIdleState : public UPlayerBaseState
 	GENERATED_BODY()
 
 public:
-	// virtual void OnStateEnter(AActor* StateOwner) override;
+	virtual void OnStateEnter(AActor* StateOwner) override;
 	virtual void OnStateTick() override;
 	// virtual void OnStateExit() override;
 	//
