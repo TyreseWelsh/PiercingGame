@@ -32,4 +32,8 @@ public:
 	virtual void ReleaseJump();
 	virtual void Attack();
 	virtual void PressPierce();
+	virtual void PressThrust();
+
+protected:
+	bool bWillCutJump = false;
 };

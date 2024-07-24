@@ -44,7 +44,10 @@ void UPlayerBaseState::OnStateEnter(AActor* StateOwner)
 		PlayerController->GetReleaseJumpDelegate()->AddUObject(this, &UPlayerBaseState::ReleaseJump);
 		PlayerController->GetAttackDelegate()->AddUObject(this, &UPlayerBaseState::Attack);
 		PlayerController->GetPierceDelegate()->AddUObject(this, &UPlayerBaseState::PressPierce);
+		PlayerController->GetThrustDelegate()->AddUObject(this, &UPlayerBaseState::PressThrust);
 	}
+	
+	bWillCutJump = false;
 }
 
 void UPlayerBaseState::OnStateTick()
@@ -59,17 +62,13 @@ void UPlayerBaseState::OnStateTick()
 	{
 		// Mouse on right side of player
 		PlayerRef->GetSprite()->SetRelativeScale3D(FVector(1, 1, 1));
-		//PlayerRef->bIsFacingRight = true;
 
 		if(PlayerRef->CurrentMovementDirection > 0)
 		{
-			//GEngine->AddOnScreenDebugMessage(int32(-1), 0.5f, FColor::Green, "Forward");
 			PlayerRef->bIsRunningForward = true;
 		}
 		else
 		{
-			//GEngine->AddOnScreenDebugMessage(int32(-1), 0.5f, FColor::Green, "Backward");
-
 			PlayerRef->bIsRunningForward = false;
 		}
 	}
@@ -77,18 +76,13 @@ void UPlayerBaseState::OnStateTick()
 	{
 		// Mouse on left side of player
 		PlayerRef->GetSprite()->SetRelativeScale3D(FVector(-1, 1, 1));
-		//PlayerRef->bIsFacingRight = false;
 
 		if(PlayerRef->CurrentMovementDirection < 0)
 		{
-			//GEngine->AddOnScreenDebugMessage(int32(-1), 0.5f, FColor::Green, "Forward");
-
 			PlayerRef->bIsRunningForward = true;
 		}
 		else
 		{
-			//GEngine->AddOnScreenDebugMessage(int32(-1), 0.5f, FColor::Green, "Backward");
-
 			PlayerRef->bIsRunningForward = false;
 		}
 	}
@@ -104,6 +98,7 @@ void UPlayerBaseState::OnStateExit()
 		PlayerController->GetJumpDelegate()->RemoveAll(this);
 		PlayerController->GetAttackDelegate()->RemoveAll(this);
 		PlayerController->GetPierceDelegate()->RemoveAll(this);
+		PlayerController->GetThrustDelegate()->RemoveAll(this);
 	}
 }
 
@@ -118,6 +113,7 @@ void UPlayerBaseState::Jump()
 {
 	if(PlayerRef->JumpCurrentCount < PlayerRef->JumpMaxCount)
 	{
+		bWillCutJump = true;
 		PlayerRef->Jump();
 		PlayerRef->GetLogicStateManagerComponent()->SwitchStateByKey("InAir");
 	}
@@ -125,11 +121,6 @@ void UPlayerBaseState::Jump()
 
 void UPlayerBaseState::ReleaseJump()
 {
-	if(PlayerRef->GetVelocity().Z > 0 && PlayerRef->GetVelocity().Z)
-	{
-		//PlayerRef->GetCharacterMovement()->Velocity.Z = PlayerRef->GetCharacterMovement()->JumpZVelocity / 2.25;
-		PlayerRef->GetCharacterMovement()->Velocity.Z = 0;
-	}
 	PlayerRef->StopJumping();
 }
 
@@ -165,5 +156,13 @@ void UPlayerBaseState::PressPierce()
 	if (IsValid(PlayerRef->ClosestPierceTarget))
 	{
 		PlayerRef->GetLogicStateManagerComponent()->SwitchStateByKey("Pierce");
+	}
+}
+
+void UPlayerBaseState::PressThrust()
+{
+	if(IsValid(PlayerRef))
+	{
+		PlayerRef->GetLogicStateManagerComponent()->SwitchStateByKey("Thrust");
 	}
 }

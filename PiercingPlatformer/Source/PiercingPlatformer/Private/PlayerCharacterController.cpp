@@ -36,7 +36,9 @@ void APlayerCharacterController::SetupInputComponent()
 
 		EnhancedInputComponent->BindAction(PierceAction, ETriggerEvent::Started, this, &APlayerCharacterController::PressPierce);
 		EnhancedInputComponent->BindAction(PierceAction, ETriggerEvent::Completed, this, &APlayerCharacterController::ReleasePierce);
-			}
+
+		EnhancedInputComponent->BindAction(ThrustAction, ETriggerEvent::Started, this, &APlayerCharacterController::PressThrust);
+	}
 }
 
 FMoveSignature* APlayerCharacterController::GetMoveDelegate()
@@ -67,6 +69,11 @@ FPierceSignature* APlayerCharacterController::GetPierceDelegate()
 FReleasePierceSignature* APlayerCharacterController::GetReleasePierceDelegate()
 {
 	return &ReleasePierceDelegate;
+}
+
+FThrustSignature* APlayerCharacterController::GetThrustDelegate()
+{
+	return &ThrustDelegate;
 }
 
 void APlayerCharacterController::PressMove(const FInputActionValue& Value)
@@ -114,5 +121,13 @@ void APlayerCharacterController::ReleasePierce()
 	if(ReleasePierceDelegate.IsBound())
 	{
 		ReleasePierceDelegate.Broadcast();
+	}
+}
+
+void APlayerCharacterController::PressThrust()
+{
+	if(ThrustDelegate.IsBound())
+	{
+		ThrustDelegate.Broadcast();
 	}
 }

@@ -71,22 +71,17 @@ void UPlayerPierceState::Attack()
 
 void UPlayerPierceState::EnterPierce()
 {
-	GEngine->AddOnScreenDebugMessage(int32(-1), 20.f, FColor::Green, "EnterPierce");
-
 	PlayerRef->bIsPierceButtonReleased = false;
 	
 	PlayerRef->GetWorldSettings()->SetTimeDilation(0.f);
 
 	PlayerRef->GetCharacterMovement()->Velocity = FVector(0.f, 0.f, 0.f);
 
-	GEngine->AddOnScreenDebugMessage(int32(-1), 20.f, FColor::Green, "About to AIMPIERCE");
 	GetWorld()->GetTimerManager().SetTimer(PierceAimTimer, PierceAimDelegate, 0.0002f * GetWorld()->DeltaRealTimeSeconds, true);
 }
 
 void UPlayerPierceState::AimPierce()
 {
-	GEngine->AddOnScreenDebugMessage(int32(-1), 20.f, FColor::Green, "STARTED AIMPIERCE");
-
 	if(IsValid(PlayerRef))
 	{
 		FVector MouseLocation;
@@ -111,7 +106,7 @@ void UPlayerPierceState::AimPierce()
 		// Pierce distance multiplied by PierceDistanceMultiplier so the distance covered is continuously reduced while the player holds the button, incentivising faster gameplay
 		FVector PiercePower = (PlayerRef->PierceDirection * PlayerRef->PierceDistance) * PlayerRef->PierceDistanceMultiplier;
 		PlayerRef->PierceEndPos = PlayerRef->ClosestPierceTarget->GetActorLocation() + PiercePower;
-		PlayerRef->PierceStartPos = PlayerRef->ClosestPierceTarget->GetActorLocation() + (-1 * PiercePower / 2);
+		PlayerRef->PierceStartPos = PlayerRef->ClosestPierceTarget->GetActorLocation() + (-1 * PiercePower / 4);
 
 
 		if(!IsValid(PlayerRef->PierceAimHead))
@@ -152,7 +147,6 @@ void UPlayerPierceState::AimPierce()
 	else
 	{
 		GEngine->AddOnScreenDebugMessage(int32(-1), 20.f, FColor::Green, "Aim Pierce - Player Ref INVALID");
-
 	}
 
 }

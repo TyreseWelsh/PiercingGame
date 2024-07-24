@@ -17,6 +17,7 @@ DECLARE_MULTICAST_DELEGATE(FReleaseJumpSignature);
 DECLARE_MULTICAST_DELEGATE(FAttackSignature);
 DECLARE_MULTICAST_DELEGATE(FPierceSignature);
 DECLARE_MULTICAST_DELEGATE(FReleasePierceSignature);
+DECLARE_MULTICAST_DELEGATE(FThrustSignature);
 
 
 
@@ -40,6 +41,7 @@ public:
 	FAttackSignature* GetAttackDelegate();
 	FPierceSignature* GetPierceDelegate();
 	FReleasePierceSignature* GetReleasePierceDelegate();
+	FThrustSignature* GetThrustDelegate();
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = Input, meta = (AllowPrivateAccess))
@@ -57,6 +59,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = Input, meta = (AllowPrivateAccess))
 	UInputAction* PierceAction;
 
+	UPROPERTY(EditDefaultsOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* ThrustAction;
 
 	void PressMove(const FInputActionValue& Value);
 	void PressJump();
@@ -64,6 +68,7 @@ private:
 	void PressAttack();
 	void PressPierce();
 	void ReleasePierce();
+	void PressThrust();
 	
 private:
 	FMoveSignature MoveDelegate;
@@ -72,4 +77,5 @@ private:
 	FAttackSignature AttackDelegate;
 	FPierceSignature PierceDelegate;
 	FReleasePierceSignature ReleasePierceDelegate;
+	FThrustSignature ThrustDelegate;
 };

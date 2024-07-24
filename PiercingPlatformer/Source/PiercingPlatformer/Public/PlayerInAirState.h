@@ -21,6 +21,7 @@ public:
 
 	virtual void Move(const FInputActionValue& Value);
 	virtual void Jump();
+	virtual void ReleaseJump();
 
 private:
 	// Number of frames jump can be buffered for

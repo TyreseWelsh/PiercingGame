@@ -40,7 +40,7 @@ void UPlayerMoveState::CheckCoyoteTime()
 		}
 	}
 	else if(PlayerRef->GetCharacterMovement()->Velocity.Z < 0)
-	{
+	{		
 		CoyoteTimer += GetWorld()->DeltaRealTimeSeconds;
 		if(CoyoteTimer >= MAX_COYOTE_TIME)
 		{
@@ -52,8 +52,6 @@ void UPlayerMoveState::CheckCoyoteTime()
 			PlayerRef->GetCharacterMovement()->Velocity.Z = 0;
 			PlayerRef->SetActorLocation(FVector(PlayerRef->GetActorLocation().X, PlayerRef->GetActorLocation().Y, PreviousZPos));
 			PlayerRef->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
-			//GEngine->AddOnScreenDebugMessage(int32(-1), 1.f, FColor::Green, "random coyote thing!");
-
 		}
 	}
 }

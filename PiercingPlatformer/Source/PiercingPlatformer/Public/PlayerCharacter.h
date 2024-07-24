@@ -43,18 +43,19 @@ public:
 private:
 	UPROPERTY(EditDefaultsOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputMappingContext* DefaultMappingContext;
+	//
+	// UPROPERTY(EditDefaultsOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	// UInputAction* RunAction;
+	//
+	// UPROPERTY(EditDefaultsOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	// UInputAction* JumpAction;
+	//
+	// UPROPERTY(EditDefaultsOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	// UInputAction* AttackAction;
+	//
+	// UPROPERTY(EditDefaultsOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	// UInputAction* PierceAction;
 
-	UPROPERTY(EditDefaultsOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* RunAction;
-
-	UPROPERTY(EditDefaultsOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* JumpAction;
-
-	UPROPERTY(EditDefaultsOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* AttackAction;
-
-	UPROPERTY(EditDefaultsOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* PierceAction;
 
 
 protected:
@@ -123,7 +124,7 @@ public:
 	FVector PierceStartPos;
 	FVector PierceEndPos;
 	float PierceTravelPercent;
-	float PierceDistance = 350.f;
+	float PierceDistance = 400.f;
 	float PierceDistanceMultiplier = 1.f;
 	bool bIsPiercing = false;
 

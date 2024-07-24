@@ -12,15 +12,6 @@
 void UPlayerInAirState::OnStateEnter(AActor* StateOwner)
 {
 	Super::OnStateEnter(StateOwner);
-	GEngine->AddOnScreenDebugMessage(int32(-1), 1.f, FColor::Yellow, "enter air");
-	
-	if(IsValid(PlayerRef))
-	{
-		if(PlayerRef->JumpCurrentCount == 1)
-		{
-			//GEngine->AddOnScreenDebugMessage(int32(-1), 20.f, FColor::Green, "Double jump!");
-		}
-	}
 }
 
 void UPlayerInAirState::OnStateTick()
@@ -80,4 +71,15 @@ void UPlayerInAirState::Jump()
 	}
 	
 	Super::Jump();
+}
+
+void UPlayerInAirState::ReleaseJump()
+{
+	if(PlayerRef->GetVelocity().Z > 0 && PlayerRef->GetVelocity().Z && bWillCutJump)
+	{
+		//PlayerRef->GetCharacterMovement()->Velocity.Z = PlayerRef->GetCharacterMovement()->JumpZVelocity / 2.25;
+		PlayerRef->GetCharacterMovement()->Velocity.Z = 0;
+	}
+	
+	Super::ReleaseJump();
 }

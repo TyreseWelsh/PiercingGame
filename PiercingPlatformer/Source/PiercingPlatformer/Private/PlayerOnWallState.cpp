@@ -12,8 +12,7 @@
 void UPlayerOnWallState::OnStateEnter(AActor* StateOwner)
 {
 	Super::OnStateEnter(StateOwner);
-	//GEngine->AddOnScreenDebugMessage(int32(-1), 10.f, FColor::Green, "entererd on wall");
-
+	
 	if(IsValid(PlayerRef))
 	{
 		PlayerRef->JumpCurrentCount = 0;
@@ -34,7 +33,7 @@ void UPlayerOnWallState::OnStateTick()
 		}
 		
 		if(PlayerRef->GetCharacterMovement()->Velocity.X == 0 && !bMovingTowardsWall)
-		{
+		{			
 			PlayerRef->GetLogicStateManagerComponent()->SwitchStateByKey("InAir");
 		}
 
@@ -57,20 +56,14 @@ void UPlayerOnWallState::OnStateTick()
 	
 	if(LeftOverlappingWalls.Num() > 0)
 	{
-		GEngine->AddOnScreenDebugMessage(int32(-1), 10.f, FColor::Green, "left wall");
-
 		CheckOverlappingWallCollision(PlayerRef->GetLeftWallCollider());
 	}
 	else if(RightOverlappingWalls.Num() > 0)
 	{
-		GEngine->AddOnScreenDebugMessage(int32(-1), 10.f, FColor::Green, "right wall");
-
 		CheckOverlappingWallCollision(PlayerRef->GetRightWallCollider());
 	}
 	else
 	{
-		GEngine->AddOnScreenDebugMessage(int32(-1), 1.f, FColor::Green, "overlap not ont");
-
 		PlayerRef->GetLogicStateManagerComponent()->SwitchStateByKey("InAir");
 	}
 }
@@ -92,8 +85,8 @@ void UPlayerOnWallState::Move(const FInputActionValue& Value)
 		bMovingTowardsWall = true;
 		return;
 	}
-	
-	PlayerRef->GetLogicStateManagerComponent()->SwitchStateByKey("Move");
+
+	PlayerRef->GetLogicStateManagerComponent()->SwitchStateByKey("InAir");
 }
 
 void UPlayerOnWallState::Jump()
