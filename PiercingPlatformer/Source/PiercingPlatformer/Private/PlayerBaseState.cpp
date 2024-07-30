@@ -46,7 +46,7 @@ void UPlayerBaseState::OnStateEnter(AActor* StateOwner)
 		PlayerController->GetPierceDelegate()->AddUObject(this, &UPlayerBaseState::PressPierce);
 		PlayerController->GetThrustDelegate()->AddUObject(this, &UPlayerBaseState::PressThrust);
 	}
-	
+
 	bWillCutJump = false;
 }
 
@@ -113,7 +113,8 @@ void UPlayerBaseState::Jump()
 {
 	if(PlayerRef->JumpCurrentCount < PlayerRef->JumpMaxCount)
 	{
-		bWillCutJump = true;
+		GEngine->AddOnScreenDebugMessage(int32(-1), 15.f, FColor::Purple, "set jump cut = true!");
+
 		PlayerRef->Jump();
 		PlayerRef->GetLogicStateManagerComponent()->SwitchStateByKey("InAir");
 	}

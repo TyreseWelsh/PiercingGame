@@ -2,6 +2,9 @@
 
 
 #include "PlayerCharacter.h"
+
+#include <functional>
+
 #include "PlayerCharacterController.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
@@ -37,7 +40,7 @@ APlayerCharacter::APlayerCharacter()
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetCapsuleComponent()->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel1);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Overlap);
-	
+
 	// Initialisation and setup of PierceRadius Sphere Collider
 	PierceRadius = CreateDefaultSubobject<USphereComponent>(TEXT("PierceRadius"));
 	PierceRadius->InitSphereRadius(100.f);
@@ -47,7 +50,7 @@ APlayerCharacter::APlayerCharacter()
 	PierceRadius->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Ignore);
 	PierceRadius->bHiddenInGame = false;
 	PierceRadius->SetupAttachment(RootComponent);
-
+	
 	// Wall jump collider
 	LeftWallCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("LeftWallCollider"));
 	LeftWallCollider->SetRelativeLocation(FVector(-36.f, 0.f, 0.f));
@@ -56,7 +59,6 @@ APlayerCharacter::APlayerCharacter()
 	LeftWallCollider->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel1);
 	LeftWallCollider->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	LeftWallCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Overlap);
-	//LeftWallCollider->SetUsingAbsoluteRotation(true);	// NOTE: Perhaps this maybe the cause
 	LeftWallCollider->SetupAttachment(RootComponent);
 
 	RightWallCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("RightWallCollider"));
@@ -66,7 +68,6 @@ APlayerCharacter::APlayerCharacter()
 	RightWallCollider->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel1);
 	RightWallCollider->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	RightWallCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Overlap);
-	//RightWallCollider->SetUsingAbsoluteRotation(true);	// NOTE: Perhaps this maybe the cause
 	RightWallCollider->SetupAttachment(RootComponent);
 
 	LogicStateManagerComponent = CreateDefaultSubobject<ULogicStateManagerComponent>(TEXT("LogicStateManager"));
@@ -165,8 +166,14 @@ void APlayerCharacter::TakeDamage_Implementation(int Damage)
 
 	if (Health <= 0)
 	{
-		UE_LOG(LogTemp, Error, TEXT("YOU DIED..."));
+		KillActor_Implementation();
 	}
+}
+
+void APlayerCharacter::KillActor_Implementation()
+{
+	//UE_LOG(LogTemp, Error, TEXT("YOU DIED..."));
+	GEngine->AddOnScreenDebugMessage(int32(-1), 1.f, FColor::Red, "YOU DIED....");
 }
 
 

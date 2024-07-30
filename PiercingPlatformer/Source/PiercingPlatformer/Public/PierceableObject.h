@@ -36,4 +36,5 @@ public:
 
 
 	void TakeDamage_Implementation(int Damage);
+	void KillActor_Implementation() override;
 };

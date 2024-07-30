@@ -49,30 +49,23 @@ void ABasicAttack::BeginPlay()
 	AttackCollider->OnComponentBeginOverlap.AddDynamic(this, &ABasicAttack::BeginOverlap);
 
 	SetLifeSpan(AttackSprite->GetFlipbookLength());
+	HitActors.Empty();
 }
 
 void ABasicAttack::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	GEngine->AddOnScreenDebugMessage(int32(-1), 1.f, FColor::Green, *OtherActor->GetName());
+
 	if (IDamageable* DamageableInterface = Cast<IDamageable>(OtherActor))
 	{
-		if (!bJumpHasReset && IsValid(OwningPlayer))
+		SpawnHitEffect(OtherActor);
+
+		InAirHitBounce();
+
+		if(!HitActors.Contains(OtherActor))
 		{
-			FTransform AttackHitEffectTransform;
-			AttackHitEffectTransform.SetLocation(FVector(OtherActor->GetActorLocation().X, OtherActor->GetActorLocation().Y + 5, OtherActor->GetActorLocation().Z));
-			AttackHitEffectTransform.SetRotation(FVector(0, 0, 0).ToOrientationQuat());
-			AttackHitEffectTransform.SetScale3D(FVector::One());
-
-			AttackHitActor = GetWorld()->SpawnActor<AActor>(AttackHit, AttackHitEffectTransform);
-			//AttackHitActor->SetActorLocation(FVector(OtherActor->GetActorLocation().X, OtherActor->GetActorLocation().Y + 2, OtherActor->GetActorLocation().Z));
-			AttackHitActor->AttachToActor(OtherActor, FAttachmentTransformRules::KeepWorldTransform);
-
-			// NOTE: Should only launch when play is in "InAir" state once state machine is implemented
-			if(OwningPlayer->GetCharacterMovement()->Velocity.Z != 0)
-			{
-						OwningPlayer->GetCharacterMovement()->Launch(FVector(0,0,OwningPlayer->GetCharacterMovement()->JumpZVelocity / 1.5f));
-			}
-			bJumpHasReset = true;
-			OwningPlayer->JumpCurrentCount = 0;
+			DamageableInterface->Execute_TakeDamage(OtherActor, AttackDamage);
+			GEngine->AddOnScreenDebugMessage(int32(-1), 1.f, FColor::Green, "Text!");
 		}
 	}
 }
@@ -91,5 +84,33 @@ void ABasicAttack::SetOwningPlayer(APlayerCharacter* NewOwner)
 {
 	OwningPlayer = NewOwner;
 	//GEngine->AddOnScreenDebugMessage(int32(-1), 20.f, FColor::Green, "OWNING PLAYer set");
+
+}
+
+void ABasicAttack::InAirHitBounce()
+{
+	// Launch owning character upwards if theyre in the air
+	if (!bJumpHasReset && IsValid(OwningPlayer))
+	{
+		// NOTE: Should only launch when play is in "InAir" state once state machine is implemented
+		if(OwningPlayer->GetCharacterMovement()->Velocity.Z != 0)
+		{
+			OwningPlayer->GetCharacterMovement()->Launch(FVector(0,0,OwningPlayer->GetCharacterMovement()->JumpZVelocity / 1.5f));
+		}
+		bJumpHasReset = true;
+		OwningPlayer->JumpCurrentCount = 0;
+	}
+}
+
+void ABasicAttack::SpawnHitEffect(AActor* OtherActor)
+{
+	FTransform AttackHitEffectTransform;
+	AttackHitEffectTransform.SetLocation(FVector(OtherActor->GetActorLocation().X, OtherActor->GetActorLocation().Y + 5, OtherActor->GetActorLocation().Z));
+	AttackHitEffectTransform.SetRotation(FVector(0, 0, 0).ToOrientationQuat());
+	AttackHitEffectTransform.SetScale3D(FVector::One());
+
+	AttackHitActor = GetWorld()->SpawnActor<AActor>(AttackHit, AttackHitEffectTransform);
+	//AttackHitActor->SetActorLocation(FVector(OtherActor->GetActorLocation().X, OtherActor->GetActorLocation().Y + 2, OtherActor->GetActorLocation().Z));
+	AttackHitActor->AttachToActor(OtherActor, FAttachmentTransformRules::KeepWorldTransform);
 
 }

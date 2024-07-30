@@ -14,6 +14,7 @@ struct FInputActionValue;
 DECLARE_MULTICAST_DELEGATE_OneParam(FMoveSignature, const FInputActionValue&);
 DECLARE_MULTICAST_DELEGATE(FJumpSignature);
 DECLARE_MULTICAST_DELEGATE(FReleaseJumpSignature);
+DECLARE_MULTICAST_DELEGATE(FHoverSignature);
 DECLARE_MULTICAST_DELEGATE(FAttackSignature);
 DECLARE_MULTICAST_DELEGATE(FPierceSignature);
 DECLARE_MULTICAST_DELEGATE(FReleasePierceSignature);
@@ -38,6 +39,7 @@ public:
 	FMoveSignature* GetMoveDelegate();
 	FJumpSignature* GetJumpDelegate();
 	FReleaseJumpSignature* GetReleaseJumpDelegate();
+	FHoverSignature* GetHoverDelegate();
 	FAttackSignature* GetAttackDelegate();
 	FPierceSignature* GetPierceDelegate();
 	FReleasePierceSignature* GetReleasePierceDelegate();
@@ -65,6 +67,7 @@ private:
 	void PressMove(const FInputActionValue& Value);
 	void PressJump();
 	void ReleaseJump();
+	void CallHover();
 	void PressAttack();
 	void PressPierce();
 	void ReleasePierce();
@@ -74,6 +77,7 @@ private:
 	FMoveSignature MoveDelegate;
 	FJumpSignature JumpDelegate;
 	FReleaseJumpSignature ReleaseJumpDelegate;
+	FHoverSignature HoverDelegate;
 	FAttackSignature AttackDelegate;
 	FPierceSignature PierceDelegate;
 	FReleasePierceSignature ReleasePierceDelegate;

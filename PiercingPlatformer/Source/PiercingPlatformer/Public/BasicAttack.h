@@ -53,12 +53,17 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void SetOwningPlayer(APlayerCharacter* NewOwner);
+	void InAirHitBounce();
+	void SpawnHitEffect(AActor* OtherActor);
 
 	UBoxComponent* GetCollider() { return AttackCollider; }
 
 private:
 	float AttackLength = 92.f;
+	int AttackDamage = 10;
 
 	APlayerCharacter* OwningPlayer;
 	bool bJumpHasReset = false;
+
+	TArray<AActor*> HitActors;
 };

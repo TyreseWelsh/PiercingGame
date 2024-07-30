@@ -25,4 +25,6 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void TakeDamage(int Damage);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void KillActor();
 };

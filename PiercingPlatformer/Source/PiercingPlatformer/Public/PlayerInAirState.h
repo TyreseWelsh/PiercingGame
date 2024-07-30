@@ -23,7 +23,19 @@ public:
 	virtual void Jump();
 	virtual void ReleaseJump();
 
+	UFUNCTION()
+	void StartHover();
+	UFUNCTION()
+	void Hover();
+
 private:
 	// Number of frames jump can be buffered for
 	int JumpBufferFrameCounter = 5;
+
+	bool bCanHover = false;
+	const int MaxHoverFuel = 100;
+	int CurrentHoverFuel = 100;
+
+	FTimerHandle HoverTimer;
+	FTimerDelegate HoverTimerDelegate;
 };

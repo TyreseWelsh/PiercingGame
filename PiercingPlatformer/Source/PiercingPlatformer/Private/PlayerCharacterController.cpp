@@ -30,8 +30,9 @@ void APlayerCharacterController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APlayerCharacterController::PressMove);
 
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &APlayerCharacterController::PressJump);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &APlayerCharacterController::ReleaseJump);
-
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Canceled, this, &APlayerCharacterController::ReleaseJump);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &APlayerCharacterController::CallHover);
+		
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &APlayerCharacterController::PressAttack);
 
 		EnhancedInputComponent->BindAction(PierceAction, ETriggerEvent::Started, this, &APlayerCharacterController::PressPierce);
@@ -54,6 +55,11 @@ FJumpSignature* APlayerCharacterController::GetJumpDelegate()
 FReleaseJumpSignature* APlayerCharacterController::GetReleaseJumpDelegate()
 {
 	return &ReleaseJumpDelegate;
+}
+
+FHoverSignature* APlayerCharacterController::GetHoverDelegate()
+{
+	return &HoverDelegate;
 }
 
 FAttackSignature* APlayerCharacterController::GetAttackDelegate()
@@ -97,6 +103,14 @@ void APlayerCharacterController::ReleaseJump()
 	if(ReleaseJumpDelegate.IsBound())
 	{
 		ReleaseJumpDelegate.Broadcast();
+	}
+}
+
+void APlayerCharacterController::CallHover()
+{
+	if(HoverDelegate.IsBound())
+	{
+		HoverDelegate.Broadcast();
 	}
 }
 

@@ -8,10 +8,24 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/BoxComponent.h"
 #include "InputActionValue.h"
+#include "PlayerCharacterController.h"
 
 void UPlayerInAirState::OnStateEnter(AActor* StateOwner)
 {
 	Super::OnStateEnter(StateOwner);
+
+	if(PlayerController)
+	{
+		PlayerController->GetHoverDelegate()->AddUObject(this, &UPlayerInAirState::StartHover);
+	}
+
+	// NOTE: Re-enable if WIP hovering should be re-enabled
+	// if(!HoverTimerDelegate.IsBound())
+	// {
+	// 	HoverTimerDelegate.BindUFunction(this, "Hover");
+	// }
+
+	bWillCutJump = true;
 }
 
 void UPlayerInAirState::OnStateTick()
@@ -37,7 +51,7 @@ void UPlayerInAirState::OnStateExit()
 {
 	Super::OnStateExit();
 	
-	//PlayerRef->GetWallCollider()->OnComponentBeginOverlap.RemoveAll(this);
+	GetWorld()->GetTimerManager().ClearTimer(HoverTimer);
 }
 
 void UPlayerInAirState::Move(const FInputActionValue& Value)
@@ -68,6 +82,7 @@ void UPlayerInAirState::Jump()
 	if(PlayerRef->JumpCurrentCount >= PlayerRef->JumpMaxCount)
 	{
 		PlayerRef->bIsJumpBuffered = true;
+		bCanHover = true;
 	}
 	
 	Super::Jump();
@@ -75,11 +90,23 @@ void UPlayerInAirState::Jump()
 
 void UPlayerInAirState::ReleaseJump()
 {
-	if(PlayerRef->GetVelocity().Z > 0 && PlayerRef->GetVelocity().Z && bWillCutJump)
+	if(PlayerRef->GetVelocity().Z > 0 && bWillCutJump)
 	{
-		//PlayerRef->GetCharacterMovement()->Velocity.Z = PlayerRef->GetCharacterMovement()->JumpZVelocity / 2.25;
 		PlayerRef->GetCharacterMovement()->Velocity.Z = 0;
 	}
 	
 	Super::ReleaseJump();
+}
+
+void UPlayerInAirState::StartHover()
+{
+	if(bCanHover && CurrentHoverFuel > 0)
+	{
+		GetWorld()->GetTimerManager().SetTimer(HoverTimer, HoverTimerDelegate, 0.02f, true);
+	}
+}
+
+void UPlayerInAirState::Hover()
+{
+	GEngine->AddOnScreenDebugMessage(int32(-1), 1.f, FColor::Green, "Hovering!");
 }

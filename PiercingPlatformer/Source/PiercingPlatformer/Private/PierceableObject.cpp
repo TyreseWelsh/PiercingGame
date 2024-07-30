@@ -44,3 +44,8 @@ void APierceableObject::TakeDamage_Implementation(int Damage)
 
 }
 
+void APierceableObject::KillActor_Implementation()
+{
+
+}
+

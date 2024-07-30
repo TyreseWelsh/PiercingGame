@@ -88,13 +88,14 @@ public:
 	// virtual void StopJumping() override;
 
 	// Interface Implementations
-	void TakeDamage_Implementation(int Damage);
+	virtual void TakeDamage_Implementation(int Damage) override;
+	virtual void KillActor_Implementation() override;
 
 	// ICanAttack functions
-	void StartAttack_Implementation();
-	void EndAttack_Implementation();
-	void EnableAttackCollider_Implementation();
-	void DisableAttackCollider_Implementation();
+	virtual void StartAttack_Implementation() override;
+	virtual void EndAttack_Implementation() override;
+	virtual void EnableAttackCollider_Implementation() override;
+	virtual void DisableAttackCollider_Implementation() override;
 	
 	void Run(const FInputActionValue& Value);
 
