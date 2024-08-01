@@ -88,8 +88,12 @@ public:
 	// virtual void StopJumping() override;
 
 	// Interface Implementations
-	virtual void TakeDamage_Implementation(int Damage) override;
-	virtual void KillActor_Implementation() override;
+	virtual void TakeDamage_Implementation(float Damage) override;
+	virtual void KillActor_Implementation(float Damage) override;
+	virtual void StartHurtEffect_Implementation() override;
+	virtual void EndHurtEffect_Implementation() override;
+	UFUNCTION()
+	virtual void SpawnDamageNumber_Implementation(int _Damage, FLinearColor _TextColour) override;
 
 	// ICanAttack functions
 	virtual void StartAttack_Implementation() override;
@@ -104,6 +108,9 @@ public:
 	void Attack();
 	
 
+	UPROPERTY()
+	UMaterialInstanceDynamic* MatInstDynamic;
+	
 	bool bIsRunning = false;
 	// bIsRunningForward is strictly for animation and is used in the anim BP
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))

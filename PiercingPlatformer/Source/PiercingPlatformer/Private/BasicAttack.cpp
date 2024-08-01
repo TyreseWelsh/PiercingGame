@@ -54,18 +54,13 @@ void ABasicAttack::BeginPlay()
 
 void ABasicAttack::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	GEngine->AddOnScreenDebugMessage(int32(-1), 1.f, FColor::Green, *OtherActor->GetName());
-
 	if (IDamageable* DamageableInterface = Cast<IDamageable>(OtherActor))
 	{
-		SpawnHitEffect(OtherActor);
-
-		InAirHitBounce();
+		InAirHitBounce(OtherActor);
 
 		if(!HitActors.Contains(OtherActor))
 		{
 			DamageableInterface->Execute_TakeDamage(OtherActor, AttackDamage);
-			GEngine->AddOnScreenDebugMessage(int32(-1), 1.f, FColor::Green, "Text!");
 		}
 	}
 }
@@ -83,11 +78,9 @@ void ABasicAttack::Tick(float DeltaTime)
 void ABasicAttack::SetOwningPlayer(APlayerCharacter* NewOwner)
 {
 	OwningPlayer = NewOwner;
-	//GEngine->AddOnScreenDebugMessage(int32(-1), 20.f, FColor::Green, "OWNING PLAYer set");
-
 }
 
-void ABasicAttack::InAirHitBounce()
+void ABasicAttack::InAirHitBounce(AActor* OtherActor)
 {
 	// Launch owning character upwards if theyre in the air
 	if (!bJumpHasReset && IsValid(OwningPlayer))
@@ -96,6 +89,7 @@ void ABasicAttack::InAirHitBounce()
 		if(OwningPlayer->GetCharacterMovement()->Velocity.Z != 0)
 		{
 			OwningPlayer->GetCharacterMovement()->Launch(FVector(0,0,OwningPlayer->GetCharacterMovement()->JumpZVelocity / 1.5f));
+			SpawnHitEffect(OtherActor);
 		}
 		bJumpHasReset = true;
 		OwningPlayer->JumpCurrentCount = 0;

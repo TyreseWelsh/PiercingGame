@@ -9,6 +9,7 @@
 
 class UEnemyInfo;
 class UPaperZDAnimSequence;
+class AFloatingDamageNumber;
 
 /**
  * 
@@ -21,7 +22,9 @@ class PIERCINGPLATFORMER_API AEnemyBase : public APaperZDCharacter, public IDama
 public:
 	AEnemyBase();
 
+	virtual void BeginPlay() override;
 	virtual void PostInitProperties() override;
+	virtual void Tick(float DeltaSeconds) override;
 
 	// Data variables
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ConstructionInfo")
@@ -40,13 +43,35 @@ public:
 	int EnemyDamage;
 
 
-	virtual void TakeDamage_Implementation(int Damage) override;
-	virtual void KillActor_Implementation() override;
+	//
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animations")
+	UPaperZDAnimSequence* IdleAnim;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animations")
+	UPaperZDAnimSequence* HurtAnim;
+
+
+	//
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Other")
+	TSubclassOf<AFloatingDamageNumber> DamageNumberPopupClass;
+	
+	
+	virtual void TakeDamage_Implementation(float Damage) override;
+	virtual void KillActor_Implementation(float Damage) override;
+	virtual void StartHurtEffect_Implementation() override;
+	virtual void EndHurtEffect_Implementation() override;
+	UFUNCTION()
+	virtual void SpawnDamageNumber_Implementation(int _Damage, FLinearColor _TextColour) override;
 
 private:
+	UFUNCTION()
 	void InitEnemyData();
+	UFUNCTION()
+	void InitAnimations();
 
+	UPROPERTY()
+	UMaterialInstanceDynamic* MatInstDynamic;
 
-	UPROPERTY(EditDefaultsOnly, Category = "OneShots", meta = (AllowPrivateAccess = "true"))
-	UPaperZDAnimSequence* HurtAnim;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"));
+	TObjectPtr<AFloatingDamageNumber> CurrentDamageNumberPopup; 
 };

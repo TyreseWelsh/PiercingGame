@@ -113,8 +113,6 @@ void UPlayerBaseState::Jump()
 {
 	if(PlayerRef->JumpCurrentCount < PlayerRef->JumpMaxCount)
 	{
-		GEngine->AddOnScreenDebugMessage(int32(-1), 15.f, FColor::Purple, "set jump cut = true!");
-
 		PlayerRef->Jump();
 		PlayerRef->GetLogicStateManagerComponent()->SwitchStateByKey("InAir");
 	}

@@ -35,6 +35,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 
-	void TakeDamage_Implementation(int Damage);
-	void KillActor_Implementation() override;
+	void TakeDamage_Implementation(float Damage);
+	void KillActor_Implementation(float Damage) override;
 };

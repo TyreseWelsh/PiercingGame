@@ -15,10 +15,6 @@ void APlayerCharacterController::BeginPlay()
 	{
 		Subsystem->AddMappingContext(DefaultMappingContext, 0);
 	}
-	else
-	{
-		GEngine->AddOnScreenDebugMessage(int32(-1), 20.f, FColor::Red, "NOT EVEN adding mapping context");
-	}
 }
 
 void APlayerCharacterController::SetupInputComponent()

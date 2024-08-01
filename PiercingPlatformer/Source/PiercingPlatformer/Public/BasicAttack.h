@@ -53,7 +53,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void SetOwningPlayer(APlayerCharacter* NewOwner);
-	void InAirHitBounce();
+	void InAirHitBounce(AActor* OtherActor);
 	void SpawnHitEffect(AActor* OtherActor);
 
 	UBoxComponent* GetCollider() { return AttackCollider; }

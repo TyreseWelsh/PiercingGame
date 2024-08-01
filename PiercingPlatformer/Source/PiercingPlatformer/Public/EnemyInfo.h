@@ -9,6 +9,7 @@
 
 class UPaperFlipbook;
 class UPaperZDAnimInstance;
+class UPaperZDAnimSequence;
 
 /**
  * 
@@ -36,4 +37,11 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	int Damage;
+
+	// Animations
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPaperZDAnimSequence* IdleAnim;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPaperZDAnimSequence* HurtAnim;
 };

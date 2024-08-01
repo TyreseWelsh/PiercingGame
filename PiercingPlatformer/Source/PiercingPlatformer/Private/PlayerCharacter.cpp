@@ -85,6 +85,10 @@ APlayerCharacter::APlayerCharacter()
 	GetCharacterMovement()->bUseFlatBaseForFloorChecks = true;
 
 	JumpMaxCount = 2;
+
+	MatInstDynamic = MatInstDynamic->Create(GetSprite()->GetMaterial(0), this, FName("DynamicPixelPerfectMaterial"));
+	// TODO: Move to begin play
+	// GetSprite()->SetMaterial(0, MatInstDynamic);
 }
 
 void APlayerCharacter::BeginPlay()
@@ -160,20 +164,36 @@ void APlayerCharacter::SwapCamera(AActor* NewViewTarget, float BlendTime)
 // 	ResetJumpState();
 // }
 
-void APlayerCharacter::TakeDamage_Implementation(int Damage)
+void APlayerCharacter::TakeDamage_Implementation(float Damage)
 {
 	Health -= Damage;
 
 	if (Health <= 0)
 	{
-		KillActor_Implementation();
+		KillActor_Implementation(Damage);
 	}
 }
 
-void APlayerCharacter::KillActor_Implementation()
+void APlayerCharacter::KillActor_Implementation(float Damage)
 {
 	//UE_LOG(LogTemp, Error, TEXT("YOU DIED..."));
 	GEngine->AddOnScreenDebugMessage(int32(-1), 1.f, FColor::Red, "YOU DIED....");
+}
+
+void APlayerCharacter::StartHurtEffect_Implementation()
+{
+	MatInstDynamic->SetScalarParameterValue(FName("Hurt"), 1);
+}
+
+void APlayerCharacter::EndHurtEffect_Implementation()
+{
+	MatInstDynamic->SetScalarParameterValue(FName("Hurt"), 0);
+}
+
+void APlayerCharacter::SpawnDamageNumber_Implementation(int _Damage, FLinearColor _TextColour)
+{
+	IDamageable::SpawnDamageNumber_Implementation(_Damage, _TextColour);
+	// TODO: Implement this SpawnDamageNumber function for player
 }
 
 

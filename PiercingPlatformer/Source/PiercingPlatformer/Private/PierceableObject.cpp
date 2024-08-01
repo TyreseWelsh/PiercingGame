@@ -39,12 +39,12 @@ void APierceableObject::Tick(float DeltaTime)
 
 }
 
-void APierceableObject::TakeDamage_Implementation(int Damage)
+void APierceableObject::TakeDamage_Implementation(float Damage)
 {
 
 }
 
-void APierceableObject::KillActor_Implementation()
+void APierceableObject::KillActor_Implementation(float Damage)
 {
 
 }

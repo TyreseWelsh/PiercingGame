@@ -24,7 +24,14 @@ class PIERCINGPLATFORMER_API IDamageable
 public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	void TakeDamage(int Damage);
+	void TakeDamage(float Damage);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	void KillActor();
+	void SpawnDamageNumber(int _Damage, FLinearColor _TextColour);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void KillActor(float Damage);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void StartHurtEffect();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void EndHurtEffect();
 };
